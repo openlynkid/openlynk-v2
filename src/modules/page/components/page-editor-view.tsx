@@ -35,8 +35,9 @@ export function PageEditorView({
   const [avatarUrl, setAvatarUrl] = useState(page.avatarUrl ?? "");
   const [isDefault, setIsDefault] = useState(page.isDefault);
   const [isPublished, setIsPublished] = useState(page.isPublished);
+  const [currentBlocks, setCurrentBlocks] = useState<PageBlock[]>(blocks);
 
-  const activeBlocks = blocks.filter((b) => b.isActive);
+  const activeBlocks = currentBlocks.filter((b) => b.isActive);
 
   const handleSavePage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,7 +272,8 @@ export function PageEditorView({
           <PageLinksManager
             profileId={profileId}
             pageId={page.id}
-            initialBlocks={blocks}
+            blocks={currentBlocks}
+            onBlocksChange={setCurrentBlocks}
           />
         </div>
 

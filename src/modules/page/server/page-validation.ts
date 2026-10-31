@@ -95,6 +95,10 @@ export const updatePageSchema = z.object({
 });
 
 export const pageBlockSchema = z.object({
+  type: z
+    .enum(["link", "bento_card", "social_row", "header_text", "media_embed"])
+    .optional()
+    .default("link"),
   title: z
     .string()
     .trim()
@@ -103,9 +107,18 @@ export const pageBlockSchema = z.object({
   url: z
     .string()
     .trim()
-    .min(1, "URL tujuan wajib diisi")
-    .url("Format URL tidak valid (gunakan http:// atau https://)"),
+    .min(1, "URL wajib diisi"),
   iconName: z.string().trim().optional(),
   colSpan: z.number().int().min(1).max(2).optional().default(1),
   rowSpan: z.number().int().min(1).max(2).optional().default(1),
+  config: z
+    .object({
+      embedType: z.enum(["youtube", "spotify"]).optional(),
+      embedId: z.string().trim().optional(),
+      subtitle: z.string().trim().max(160).optional(),
+      badgeText: z.string().trim().max(30).optional(),
+      accentGlow: z.string().trim().optional(),
+    })
+    .optional()
+    .default({}),
 });

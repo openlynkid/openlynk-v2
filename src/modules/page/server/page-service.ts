@@ -317,12 +317,13 @@ export async function createPageBlock(
     .values({
       id: crypto.randomUUID(),
       pageId: page.id,
-      type: "link",
+      type: parsed.data.type ?? "link",
       title: parsed.data.title,
       url: parsed.data.url,
       iconName: parsed.data.iconName ?? null,
       colSpan: parsed.data.colSpan ?? 1,
       rowSpan: parsed.data.rowSpan ?? 1,
+      config: parsed.data.config ?? {},
       sortOrder: nextOrder,
       isActive: true,
     })
@@ -366,11 +367,13 @@ export async function updatePageBlock(
     updatedAt: new Date(),
   };
 
+  if (input.type !== undefined) updateData.type = input.type;
   if (input.title !== undefined) updateData.title = input.title.trim();
   if (input.url !== undefined) updateData.url = input.url.trim();
   if (input.iconName !== undefined) updateData.iconName = input.iconName;
   if (input.colSpan !== undefined) updateData.colSpan = input.colSpan;
   if (input.rowSpan !== undefined) updateData.rowSpan = input.rowSpan;
+  if (input.config !== undefined) updateData.config = input.config;
   if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
   const [updated] = await db

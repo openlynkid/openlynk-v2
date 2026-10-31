@@ -27,19 +27,38 @@ export type UpdatePageInput = {
   isPublished?: boolean;
 };
 
+export type PageBlockType =
+  | "link"
+  | "bento_card"
+  | "social_row"
+  | "header_text"
+  | "media_embed";
+
+export type PageBlockConfig = {
+  embedType?: "youtube" | "spotify";
+  embedId?: string;
+  subtitle?: string;
+  badgeText?: string;
+  accentGlow?: string;
+};
+
 export type CreatePageBlockInput = {
+  type?: PageBlockType;
   title: string;
   url: string;
   iconName?: string;
   colSpan?: number;
   rowSpan?: number;
+  config?: PageBlockConfig;
 };
 
 export type UpdatePageBlockInput = {
+  type?: PageBlockType;
   title?: string;
   url?: string;
   iconName?: string;
   colSpan?: number;
   rowSpan?: number;
+  config?: PageBlockConfig;
   isActive?: boolean;
 };
