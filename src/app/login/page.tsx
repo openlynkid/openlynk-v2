@@ -162,9 +162,19 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-neutral-300 text-xs font-medium">
-                  Kata Sandi
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-neutral-300 text-xs font-medium">
+                    Kata Sandi
+                  </Label>
+                  {!isSignUp && (
+                    <Link
+                      href="/forgot-password"
+                      className="text-xs text-sky-400 hover:text-sky-300 underline underline-offset-4"
+                    >
+                      Lupa kata sandi?
+                    </Link>
+                  )}
+                </div>
                 <Input
                   id="password"
                   type="password"
