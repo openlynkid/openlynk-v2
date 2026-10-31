@@ -79,12 +79,29 @@ export function DashboardView() {
       {/* Top Navigation */}
       <header className="border-b border-white/10 bg-neutral-950/70 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-            <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-white/20 transition">
-              <RuneIcon name="glass-chain-link-3-1" type="glass" size={20} />
-            </div>
-            <span className="font-semibold text-base sm:text-lg tracking-tight text-white">OpenLynk</span>
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+              <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-white/20 transition">
+                <RuneIcon name="glass-chain-link-3-1" type="glass" size={20} />
+              </div>
+              <span className="font-semibold text-base sm:text-lg tracking-tight text-white">OpenLynk</span>
+            </Link>
+
+            <nav className="hidden sm:flex items-center gap-1">
+              <Link
+                href="/dashboard"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-white/[0.08] border border-white/10 transition"
+              >
+                Overview
+              </Link>
+              <Link
+                href="/dashboard/bio"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition"
+              >
+                Halaman Bio
+              </Link>
+            </nav>
+          </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
             <span className="text-xs text-neutral-400 hidden md:inline">
@@ -115,6 +132,31 @@ export function DashboardView() {
           <p className="text-neutral-400 text-xs sm:text-sm mt-1.5 leading-relaxed">
             Data Anda terhubung langsung dengan PostgreSQL via Drizzle ORM dan Better Auth bergaya tema Runeicon.
           </p>
+        </div>
+
+        {/* Feature 01 Quick Action Callout */}
+        <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-neutral-900/60 to-neutral-900/60 border border-indigo-500/20 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3.5">
+            <div className="size-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400">
+              <RuneIcon name="glass-chain-link-3-1" type="glass" size={26} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-semibold text-white">Kelola Halaman Bio</h2>
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  Fitur 01
+                </span>
+              </div>
+              <p className="text-xs text-neutral-400 mt-0.5">
+                Atur username publik Anda (openlynk.id/username), profil diri, dan daftar tautan bio.
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/bio">
+            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl text-xs h-10 px-5 min-h-[44px] w-full sm:w-auto">
+              Buka Editor Bio →
+            </Button>
+          </Link>
         </div>
 
         {/* Profile Card & Session Card */}
@@ -212,7 +254,7 @@ export function DashboardView() {
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-6 text-center text-xs text-neutral-500">
-        <p>OpenLynk Dashboard &copy; {new Date().getFullYear()} — Desain UI terinspirasi oleh Runeicon</p>
+        <p>OpenLynk Dashboard &copy; 2026 — Desain UI terinspirasi oleh Runeicon</p>
       </footer>
     </div>
   );
