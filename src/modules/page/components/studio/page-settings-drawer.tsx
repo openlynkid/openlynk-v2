@@ -1,0 +1,313 @@
+"use client";
+
+import { useState } from "react";
+import { RuneIcon } from "runeicons-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import type { Page } from "@/db/schema";
+import { ThemeSelector } from "../theme-selector";
+
+interface PageSettingsDrawerProps {
+  page: Page;
+  isOpen: boolean;
+  initialTab?: "general" | "themes";
+  onClose: () => void;
+  onSavePage: (updates: {
+    title: string;
+    slug: string;
+    description?: string;
+    avatarUrl?: string;
+    themeConfig: {
+      themePreset: string;
+      accentColor: string;
+    };
+    isDefault?: boolean;
+    isPublished?: boolean;
+  }) => void;
+  onDeletePage: () => void;
+  isSaving: boolean;
+}
+
+interface PageSettingsContentProps {
+  page: Page;
+  initialTab: "general" | "themes";
+  onClose: () => void;
+  onSavePage: (updates: {
+    title: string;
+    slug: string;
+    description?: string;
+    avatarUrl?: string;
+    themeConfig: {
+      themePreset: string;
+      accentColor: string;
+    };
+    isDefault?: boolean;
+    isPublished?: boolean;
+  }) => void;
+  onDeletePage: () => void;
+  isSaving: boolean;
+}
+
+function PageSettingsContent({
+  page,
+  initialTab,
+  onClose,
+  onSavePage,
+  onDeletePage,
+  isSaving,
+}: PageSettingsContentProps) {
+  const [tab, setTab] = useState<"general" | "themes">(initialTab);
+  const [title, setTitle] = useState(page.title);
+  const [slug, setSlug] = useState(page.slug);
+  const [description, setDescription] = useState(page.description ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(page.avatarUrl ?? "");
+  const [themePreset, setThemePreset] = useState(
+    page.themeConfig?.themePreset || "obsidian"
+  );
+  const [accentColor, setAccentColor] = useState(
+    page.themeConfig?.accentColor || "#6366f1"
+  );
+  const [isDefault, setIsDefault] = useState(page.isDefault);
+  const [isPublished, setIsPublished] = useState(page.isPublished);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !slug.trim()) return;
+
+    onSavePage({
+      title: title.trim(),
+      slug: slug.trim().toLowerCase(),
+      description: description.trim() || undefined,
+      avatarUrl: avatarUrl.trim() || undefined,
+      themeConfig: {
+        themePreset,
+        accentColor,
+      },
+      isDefault,
+      isPublished,
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div
+        className="w-full max-w-md h-full bg-neutral-900/95 border-l border-white/15 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto space-y-5 animate-in slide-in-from-right duration-300 flex flex-col justify-between"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="space-y-5">
+          {/* Top Bar */}
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <RuneIcon name="glass-sparkle" type="glass" size={16} />
+              </div>
+              <h3 className="text-sm font-bold text-white tracking-tight">
+                Pengaturan Halaman &amp; Tema
+              </h3>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white flex items-center justify-center transition"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Segmented Tabs */}
+          <div className="grid grid-cols-2 p-1 rounded-xl bg-neutral-950/80 border border-white/10">
+            <button
+              type="button"
+              onClick={() => setTab("general")}
+              className={`py-1.5 rounded-lg text-xs font-semibold transition ${
+                tab === "general"
+                  ? "bg-white/15 text-white shadow-sm border border-white/10"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              ⚙️ Pengaturan Umum
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("themes")}
+              className={`py-1.5 rounded-lg text-xs font-semibold transition ${
+                tab === "themes"
+                  ? "bg-white/15 text-white shadow-sm border border-white/10"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              🎨 Pilihan Tema
+            </button>
+          </div>
+
+          {/* Tab 1: General Settings */}
+          {tab === "general" && (
+            <form id="page-settings-form" onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1">
+                  Judul Halaman <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  maxLength={80}
+                  className="border-white/10 bg-neutral-950/60 text-white text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1">
+                  Slug URL Publik <span className="text-red-400">*</span>
+                </label>
+                <div className="flex items-center rounded-xl border border-white/10 bg-neutral-950/60 focus-within:border-indigo-500/80 transition overflow-hidden min-w-0 w-full">
+                  <span className="px-3 py-2 text-xs text-neutral-500 bg-white/[0.02] border-r border-white/5 font-mono shrink-0">
+                    openlynk.id/
+                  </span>
+                  <input
+                    type="text"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value.toLowerCase().trim())}
+                    required
+                    minLength={3}
+                    maxLength={30}
+                    className="w-full min-w-0 bg-transparent px-3 py-2 text-sm text-white outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1">
+                  Bio / Deskripsi Khusus Halaman
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value.slice(0, 200))}
+                  rows={3}
+                  placeholder="Kosongkan jika ingin menggunakan bio profil akun Anda..."
+                  className="w-full rounded-xl border border-white/10 bg-neutral-950/60 p-3 text-xs sm:text-sm text-white placeholder:text-neutral-600 outline-none focus:border-indigo-500/80 transition resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300 mb-1">
+                  Foto Avatar Halaman (Opsional)
+                </label>
+                <Input
+                  type="url"
+                  value={avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value)}
+                  placeholder="URL gambar (fallback ke foto profil)"
+                  className="border-white/10 bg-neutral-950/60 text-white text-sm placeholder:text-neutral-600"
+                />
+              </div>
+
+              <div className="pt-2 border-t border-white/5 space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPublished}
+                    onChange={(e) => setIsPublished(e.target.checked)}
+                    className="size-4 rounded border-white/20 bg-neutral-900 text-indigo-600 focus:ring-0"
+                  />
+                  <span className="text-xs text-neutral-200">
+                    Publikasikan Halaman Ini
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isDefault}
+                    onChange={(e) => setIsDefault(e.target.checked)}
+                    className="size-4 rounded border-white/20 bg-neutral-900 text-indigo-600 focus:ring-0"
+                  />
+                  <span className="text-xs text-neutral-200">
+                    Jadikan sebagai Halaman Utama Akun
+                  </span>
+                </label>
+              </div>
+            </form>
+          )}
+
+          {/* Tab 2: Theme Selector */}
+          {tab === "themes" && (
+            <div className="space-y-4">
+              <ThemeSelector
+                selectedPresetId={themePreset}
+                onSelectPreset={(presetId, accent) => {
+                  setThemePreset(presetId);
+                  setAccentColor(accent);
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+          {!page.isDefault ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onDeletePage}
+              className="border-red-500/20 text-red-400 hover:bg-red-500/10 text-xs h-10 rounded-xl"
+            >
+              Hapus Halaman
+            </Button>
+          ) : (
+            <div />
+          )}
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border-white/10 text-neutral-300 text-xs h-10 rounded-xl px-4"
+            >
+              Batal
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSaving}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-10 px-5 rounded-xl font-medium shadow-lg"
+            >
+              {isSaving ? "Menyimpan..." : "Simpan Pengaturan"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function PageSettingsDrawer({
+  page,
+  isOpen,
+  initialTab = "general",
+  onClose,
+  onSavePage,
+  onDeletePage,
+  isSaving,
+}: PageSettingsDrawerProps) {
+  if (!isOpen) return null;
+
+  return (
+    <PageSettingsContent
+      key={`${page.id}-${initialTab}-${page.updatedAt}`}
+      page={page}
+      initialTab={initialTab}
+      onClose={onClose}
+      onSavePage={onSavePage}
+      onDeletePage={onDeletePage}
+      isSaving={isSaving}
+    />
+  );
+}
