@@ -56,9 +56,9 @@ export function ForgotPasswordForm() {
         </Link>
       </div>
 
-      <Card className="rune-glass border-white/10 text-white rounded-2xl relative shadow-2xl">
-        <CardHeader className="space-y-1.5 pb-4">
-          <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+      <Card className="rune-glass border-white/10 text-white rounded-2xl relative shadow-2xl p-1 sm:p-2">
+        <CardHeader className="space-y-1.5 pb-3 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-5">
+          <CardTitle className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
             <RuneIcon name="glass-email" type="glass" size={20} />
             Lupa Kata Sandi
           </CardTitle>
@@ -67,7 +67,7 @@ export function ForgotPasswordForm() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-4 sm:px-6 pb-4">
           {sent ? (
             <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-800/80 text-emerald-200 text-sm text-center space-y-2">
               <div className="flex justify-center">
@@ -105,7 +105,7 @@ export function ForgotPasswordForm() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-white hover:bg-neutral-200 text-black font-semibold shadow-lg shadow-white/5 rounded-xl transition mt-2 h-10"
+                  className="w-full bg-white hover:bg-neutral-200 text-black font-semibold shadow-lg shadow-white/5 rounded-xl transition mt-2 h-11 sm:h-10 text-sm"
                 >
                   {loading ? "Mengirim..." : "Kirim Tautan Reset →"}
                 </Button>
@@ -114,8 +114,8 @@ export function ForgotPasswordForm() {
           )}
         </CardContent>
 
-        <CardFooter className="pt-2 pb-6 flex justify-center border-t border-white/5 text-xs text-neutral-400">
-          <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold underline underline-offset-4">
+        <CardFooter className="pt-3 pb-5 px-4 sm:px-6 flex justify-center border-t border-white/5 text-xs text-neutral-400">
+          <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold underline underline-offset-4 py-1 inline-block">
             ← Kembali ke Login
           </Link>
         </CardFooter>

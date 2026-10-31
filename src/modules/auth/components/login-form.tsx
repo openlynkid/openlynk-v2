@@ -104,9 +104,9 @@ export function LoginForm() {
       </div>
 
       {/* Auth Card */}
-      <Card className="rune-glass border-white/10 text-white rounded-2xl relative shadow-2xl">
-        <CardHeader className="space-y-1.5 pb-4">
-          <CardTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+      <Card className="rune-glass border-white/10 text-white rounded-2xl relative shadow-2xl p-1 sm:p-2">
+        <CardHeader className="space-y-1.5 pb-3 sm:pb-4 px-4 sm:px-6 pt-4 sm:pt-5">
+          <CardTitle className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
             <RuneIcon
               name={isSignUp ? "identity-user-plus" : "glass-lock-1"}
               type={isSignUp ? "duotone" : "glass"}
@@ -121,7 +121,7 @@ export function LoginForm() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-4 sm:px-6 pb-4">
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-950/40 border border-red-800/80 text-red-200 text-xs flex items-center gap-2">
               <span className="text-sm">⚠️</span>
@@ -179,7 +179,7 @@ export function LoginForm() {
                 {!isSignUp && (
                   <Link
                     href="/forgot-password"
-                    className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
+                    className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-4 py-1 inline-block"
                   >
                     Lupa kata sandi?
                   </Link>
@@ -199,7 +199,7 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full bg-white hover:bg-neutral-200 text-black font-semibold shadow-lg shadow-white/5 rounded-xl transition mt-2 h-10"
+              className="w-full bg-white hover:bg-neutral-200 text-black font-semibold shadow-lg shadow-white/5 rounded-xl transition mt-2 h-11 sm:h-10 text-sm"
               disabled={loading}
             >
               {loading ? "Memproses..." : isSignUp ? "Daftar Sekarang →" : "Masuk ke Akun →"}
@@ -207,7 +207,7 @@ export function LoginForm() {
           </form>
         </CardContent>
 
-        <CardFooter className="pt-2 pb-6 flex flex-col items-center border-t border-white/5 text-xs text-neutral-400">
+        <CardFooter className="pt-3 pb-5 px-4 sm:px-6 flex flex-col items-center border-t border-white/5 text-xs text-neutral-400">
           <p>
             {isSignUp ? "Sudah memiliki akun?" : "Belum punya akun?"}{" "}
             <button

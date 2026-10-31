@@ -78,23 +78,23 @@ export function DashboardView() {
 
       {/* Top Navigation */}
       <header className="border-b border-white/10 bg-neutral-950/70 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
             <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-white/20 transition">
               <RuneIcon name="glass-chain-link-3-1" type="glass" size={20} />
             </div>
-            <span className="font-semibold text-lg tracking-tight text-white">OpenLynk</span>
+            <span className="font-semibold text-base sm:text-lg tracking-tight text-white">OpenLynk</span>
           </Link>
 
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-neutral-400 hidden sm:inline">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="text-xs text-neutral-400 hidden md:inline">
               Login sebagai: <strong className="text-neutral-200 font-medium">{session.user.name}</strong>
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleSignOut}
-              className="border-white/10 text-neutral-300 hover:bg-red-950/30 hover:text-red-300 hover:border-red-800/80 rounded-xl text-xs"
+              className="border-white/10 text-neutral-300 hover:bg-red-950/30 hover:text-red-300 hover:border-red-800/80 rounded-xl text-xs h-9 px-3"
             >
               Keluar
             </Button>
@@ -103,13 +103,13 @@ export function DashboardView() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-12 flex-1 w-full relative">
-        <div className="mb-10">
-          <div className="rune-pill mb-4">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 w-full relative">
+        <div className="mb-8 sm:mb-10">
+          <div className="rune-pill mb-3 sm:mb-4">
             <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs font-medium text-emerald-300">Sesi Autentikasi Aktif</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
             Selamat Datang, {session.user.name}! 👋
           </h1>
           <p className="text-neutral-400 text-xs sm:text-sm mt-1.5 leading-relaxed">
@@ -118,11 +118,11 @@ export function DashboardView() {
         </div>
 
         {/* Profile Card & Session Card */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="rune-glass rune-glass-hover border-white/10 rounded-2xl p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <Card className="rune-glass rune-glass-hover border-white/10 rounded-2xl p-5 sm:p-6">
             <CardHeader className="pb-3 px-0 pt-0">
               <div className="flex items-center gap-3 mb-1">
-                <div className="size-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
+                <div className="size-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0">
                   <RuneIcon name="glass-circle-person" type="glass" size={24} />
                 </div>
                 <div>
@@ -134,17 +134,17 @@ export function DashboardView() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3 px-0 pt-3 text-xs">
-              <div className="flex justify-between py-2 border-b border-white/5">
-                <span className="text-neutral-400">Nama:</span>
-                <span className="font-medium text-white">{session.user.name}</span>
+              <div className="flex justify-between py-2 border-b border-white/5 gap-2">
+                <span className="text-neutral-400 shrink-0">Nama:</span>
+                <span className="font-medium text-white text-right truncate">{session.user.name}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-white/5">
-                <span className="text-neutral-400">Email:</span>
-                <span className="font-medium text-white">{session.user.email}</span>
+              <div className="flex justify-between py-2 border-b border-white/5 gap-2">
+                <span className="text-neutral-400 shrink-0">Email:</span>
+                <span className="font-medium text-white text-right truncate">{session.user.email}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-white/5">
-                <span className="text-neutral-400">User ID:</span>
-                <span className="font-mono text-neutral-300 truncate max-w-[200px]" title={session.user.id}>
+              <div className="flex justify-between py-2 border-b border-white/5 gap-2">
+                <span className="text-neutral-400 shrink-0">User ID:</span>
+                <span className="font-mono text-neutral-300 truncate max-w-[150px] sm:max-w-[200px]" title={session.user.id}>
                   {session.user.id}
                 </span>
               </div>
@@ -157,10 +157,10 @@ export function DashboardView() {
             </CardContent>
           </Card>
 
-          <Card className="rune-glass rune-glass-hover border-white/10 rounded-2xl p-6">
+          <Card className="rune-glass rune-glass-hover border-white/10 rounded-2xl p-5 sm:p-6">
             <CardHeader className="pb-3 px-0 pt-0">
               <div className="flex items-center gap-3 mb-1">
-                <div className="size-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
+                <div className="size-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0">
                   <RuneIcon name="glass-shield-check-1" type="glass" size={24} />
                 </div>
                 <div>
@@ -172,20 +172,20 @@ export function DashboardView() {
               </div>
             </CardHeader>
             <CardContent className="space-y-3 px-0 pt-3 text-xs">
-              <div className="flex justify-between py-2 border-b border-white/5">
-                <span className="text-neutral-400">Session ID:</span>
-                <span className="font-mono text-neutral-300 truncate max-w-[180px]" title={session.session.id}>
+              <div className="flex justify-between py-2 border-b border-white/5 gap-2">
+                <span className="text-neutral-400 shrink-0">Session ID:</span>
+                <span className="font-mono text-neutral-300 truncate max-w-[150px] sm:max-w-[180px]" title={session.session.id}>
                   {session.session.id}
                 </span>
               </div>
-              <div className="flex justify-between py-2 border-b border-white/5">
-                <span className="text-neutral-400">Kedaluwarsa:</span>
-                <span className="text-neutral-300">
+              <div className="flex justify-between py-2 border-b border-white/5 gap-2">
+                <span className="text-neutral-400 shrink-0">Kedaluwarsa:</span>
+                <span className="text-neutral-300 text-right">
                   {new Date(session.session.expiresAt).toLocaleString("id-ID")}
                 </span>
               </div>
-              <div className="flex justify-between py-2">
-                <span className="text-neutral-400">IP Address:</span>
+              <div className="flex justify-between py-2 gap-2">
+                <span className="text-neutral-400 shrink-0">IP Address:</span>
                 <span className="font-mono text-neutral-300">
                   {session.session.ipAddress || "127.0.0.1"}
                 </span>
