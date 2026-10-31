@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { RuneIcon } from "runeicons-react";
-import type { PublicProfile } from "../types";
-import { ProfileHeader } from "./profile-header";
-import { LinkCard } from "./link-card";
+import type { PublicPageData } from "../types";
+import { PageHeader } from "./page-header";
+import { PageCard } from "./page-card";
 
-interface PublicBioViewProps {
-  data: PublicProfile;
+interface PublicPageViewProps {
+  data: PublicPageData;
 }
 
-export function PublicBioView({ data }: PublicBioViewProps) {
+export function PublicPageView({ data }: PublicPageViewProps) {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 relative selection:bg-neutral-800 overflow-x-hidden flex flex-col justify-between w-full">
       {/* Ambient background glows */}
@@ -20,18 +20,18 @@ export function PublicBioView({ data }: PublicBioViewProps) {
 
       {/* Main Content Container */}
       <main className="w-full max-w-md mx-auto px-4 py-10 sm:py-14 flex-1 flex flex-col items-center relative z-10">
-        {/* Profile Header */}
-        <ProfileHeader profile={data} />
+        {/* Page Header */}
+        <PageHeader page={data} profile={data.profile} />
 
         {/* Links List */}
-        <section className="w-full mt-7 space-y-3" aria-label="Tautan Bio">
+        <section className="w-full mt-7 space-y-3" aria-label="Tautan Halaman">
           {data.blocks.length > 0 ? (
             data.blocks.map((block) => (
-              <LinkCard key={block.id} block={block} />
+              <PageCard key={block.id} block={block} />
             ))
           ) : (
             <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 text-center text-neutral-500 text-sm">
-              Belum ada tautan yang ditambahkan.
+              Belum ada tautan di halaman ini.
             </div>
           )}
         </section>

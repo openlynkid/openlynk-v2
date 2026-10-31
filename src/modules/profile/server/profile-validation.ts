@@ -7,6 +7,8 @@ export const RESERVED_USERNAMES = new Set([
   "register",
   "admin",
   "settings",
+  "pages",
+  "profile",
   "p",
   "order",
   "help",
@@ -37,8 +39,8 @@ export const profileSchema = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .min(3, "Username minimal 3 karakter")
-    .max(30, "Username maksimal 30 karakter")
+    .min(3, "Username akun minimal 3 karakter")
+    .max(30, "Username akun maksimal 30 karakter")
     .regex(
       USERNAME_REGEX,
       "Username hanya boleh huruf kecil, angka, tanda minus (-), atau underscore (_)"
@@ -65,19 +67,4 @@ export const profileSchema = z.object({
     })
     .optional()
     .default({}),
-  isPublished: z.boolean().optional().default(true),
-});
-
-export const linkBlockSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, "Judul tautan wajib diisi")
-    .max(80, "Judul tautan maksimal 80 karakter"),
-  url: z
-    .string()
-    .trim()
-    .min(1, "URL tautan wajib diisi")
-    .url("Format URL tidak valid (gunakan http:// atau https://)"),
-  iconName: z.string().trim().optional(),
 });

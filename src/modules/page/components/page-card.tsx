@@ -1,11 +1,11 @@
 import { RuneIcon } from "runeicons-react";
-import type { BioBlock } from "@/db/schema";
+import type { PageBlock } from "@/db/schema";
 
-interface LinkCardProps {
-  block: BioBlock;
+interface PageCardProps {
+  block: PageBlock;
 }
 
-export function LinkCard({ block }: LinkCardProps) {
+export function PageCard({ block }: PageCardProps) {
   return (
     <a
       href={block.url}

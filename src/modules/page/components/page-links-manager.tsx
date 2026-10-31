@@ -5,26 +5,28 @@ import { useRouter } from "next/navigation";
 import { RuneIcon } from "runeicons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { BioBlock } from "@/db/schema";
+import type { PageBlock } from "@/db/schema";
 import {
-  createLinkBlock,
-  updateLinkBlock,
-  deleteLinkBlock,
-  reorderLinkBlocks,
-} from "../server/bio-service";
+  createPageBlock,
+  updatePageBlock,
+  deletePageBlock,
+  reorderPageBlocks,
+} from "../server/page-service";
 
-interface BioLinksManagerProps {
-  userId: string;
-  initialBlocks: BioBlock[];
+interface PageLinksManagerProps {
+  profileId: string;
+  pageId: string;
+  initialBlocks: PageBlock[];
 }
 
-export function BioLinksManager({
-  userId,
+export function PageLinksManager({
+  profileId,
+  pageId,
   initialBlocks,
-}: BioLinksManagerProps) {
+}: PageLinksManagerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [blocks, setBlocks] = useState<BioBlock[]>(initialBlocks);
+  const [blocks, setBlocks] = useState<PageBlock[]>(initialBlocks);
   const [error, setError] = useState<string | null>(null);
 
   // Form states
@@ -43,7 +45,7 @@ export function BioLinksManager({
     setError(null);
 
     startTransition(async () => {
-      const res = await createLinkBlock(userId, {
+      const res = await createPageBlock(profileId, pageId, {
         title: newTitle.trim(),
         url: newUrl.trim(),
       });
@@ -60,22 +62,20 @@ export function BioLinksManager({
     });
   };
 
-  const handleToggleActive = (block: BioBlock) => {
+  const handleToggleActive = (block: PageBlock) => {
     setError(null);
     const updatedStatus = !block.isActive;
 
-    // Optimistic UI update
     setBlocks((prev) =>
       prev.map((b) => (b.id === block.id ? { ...b, isActive: updatedStatus } : b))
     );
 
     startTransition(async () => {
-      const res = await updateLinkBlock(userId, block.id, {
+      const res = await updatePageBlock(profileId, pageId, block.id, {
         isActive: updatedStatus,
       });
       if (!res.success) {
         setError(res.error);
-        // Rollback
         setBlocks((prev) =>
           prev.map((b) => (b.id === block.id ? { ...b, isActive: block.isActive } : b))
         );
@@ -89,12 +89,11 @@ export function BioLinksManager({
     if (!confirm("Apakah Anda yakin ingin menghapus tautan ini?")) return;
     setError(null);
 
-    // Optimistic delete
     const previousBlocks = [...blocks];
     setBlocks((prev) => prev.filter((b) => b.id !== blockId));
 
     startTransition(async () => {
-      const res = await deleteLinkBlock(userId, blockId);
+      const res = await deletePageBlock(profileId, pageId, blockId);
       if (!res.success) {
         setError(res.error);
         setBlocks(previousBlocks);
@@ -104,7 +103,7 @@ export function BioLinksManager({
     });
   };
 
-  const handleStartEdit = (block: BioBlock) => {
+  const handleStartEdit = (block: PageBlock) => {
     setEditingId(block.id);
     setEditTitle(block.title);
     setEditUrl(block.url);
@@ -115,7 +114,7 @@ export function BioLinksManager({
     setError(null);
 
     startTransition(async () => {
-      const res = await updateLinkBlock(userId, blockId, {
+      const res = await updatePageBlock(profileId, pageId, blockId, {
         title: editTitle.trim(),
         url: editUrl.trim(),
       });
@@ -145,7 +144,7 @@ export function BioLinksManager({
 
     startTransition(async () => {
       const orderedIds = newBlocks.map((b) => b.id);
-      const res = await reorderLinkBlocks(userId, orderedIds);
+      const res = await reorderPageBlocks(profileId, pageId, orderedIds);
       if (!res.success) {
         setError(res.error);
       } else {
@@ -155,14 +154,14 @@ export function BioLinksManager({
   };
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl shadow-xl space-y-5">
+    <div className="p-5 sm:p-6 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl shadow-xl space-y-5 w-full min-w-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-white tracking-tight">
-            Daftar Tautan Bio
+            Daftar Tautan di Halaman Ini
           </h2>
           <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">
-            Kelola tautan yang akan tampil di halaman bio Anda.
+            Tautan yang akan tampil pada URL halaman ini.
           </p>
         </div>
 

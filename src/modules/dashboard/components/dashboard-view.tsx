@@ -97,10 +97,16 @@ export function DashboardView() {
                 Overview
               </Link>
               <Link
-                href="/dashboard/bio"
+                href="/dashboard/pages"
                 className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition"
               >
-                Halaman Bio
+                Halaman Saya
+              </Link>
+              <Link
+                href="/dashboard/profile"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition"
+              >
+                Profil Akun
               </Link>
             </nav>
           </div>
@@ -132,33 +138,59 @@ export function DashboardView() {
             Selamat Datang, {session.user.name}! 👋
           </h1>
           <p className="text-neutral-400 text-xs sm:text-sm mt-1.5 leading-relaxed">
-            Data Anda terhubung langsung dengan PostgreSQL via Drizzle ORM dan Better Auth bergaya tema Runeicon.
+            Kelola profil akun dan seluruh halaman micro-site publik Anda dalam satu dashboard terintegrasi.
           </p>
         </div>
 
-        {/* Feature 01 Quick Action Callout */}
-        <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-neutral-900/60 to-neutral-900/60 border border-indigo-500/20 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center gap-3.5">
-            <div className="size-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400">
-              <RuneIcon name="glass-chain-link-3-1" type="glass" size={26} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-semibold text-white">Kelola Halaman Bio</h2>
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  Fitur 01
-                </span>
+        {/* Multi-Page & Profile Quick Action Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-neutral-900/60 to-neutral-900/60 border border-indigo-500/20 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+            <div className="flex items-start gap-3.5">
+              <div className="size-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 text-indigo-400">
+                <RuneIcon name="glass-chain-link-3-1" type="glass" size={24} />
               </div>
-              <p className="text-xs text-neutral-400 mt-0.5">
-                Atur username publik Anda (openlynk.id/username), profil diri, dan daftar tautan bio.
-              </p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-semibold text-white">Halaman Saya (Multi-Page)</h2>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    Banyak Halaman
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  Buat dan kelola banyak halaman micro-site untuk berbagai kebutuhan (portofolio, event, dll).
+                </p>
+              </div>
             </div>
+            <Link href="/dashboard/pages">
+              <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl text-xs h-9 px-4 min-h-[44px] w-full">
+                Buka Daftar Halaman →
+              </Button>
+            </Link>
           </div>
-          <Link href="/dashboard/bio">
-            <Button className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl text-xs h-10 px-5 min-h-[44px] w-full sm:w-auto">
-              Buka Editor Bio →
-            </Button>
-          </Link>
+
+          <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-violet-950/40 via-neutral-900/60 to-neutral-900/60 border border-violet-500/20 backdrop-blur-xl flex flex-col justify-between gap-4 shadow-xl">
+            <div className="flex items-start gap-3.5">
+              <div className="size-11 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 text-violet-400">
+                <RuneIcon name="glass-circle-person" type="glass" size={24} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-semibold text-white">Profil Akun Kreator</h2>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                    1 Akun
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  Atur handle unik akun (@username), identitas diri, dan akun media sosial resmi.
+                </p>
+              </div>
+            </div>
+            <Link href="/dashboard/profile">
+              <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white font-medium rounded-xl text-xs h-9 px-4 min-h-[44px] w-full">
+                Pengaturan Profil Akun →
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Profile Card & Session Card */}

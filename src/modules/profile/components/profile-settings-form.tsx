@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Profile } from "@/db/schema";
 import type { SocialLinks } from "../types";
-import { upsertCreatorProfile } from "../server/bio-service";
+import { upsertProfile } from "../server/profile-service";
 
-interface BioProfileFormProps {
+interface ProfileSettingsFormProps {
   userId: string;
   initialProfile: Profile | null;
 }
 
-export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) {
+export function ProfileSettingsForm({
+  userId,
+  initialProfile,
+}: ProfileSettingsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
     setSuccessMessage(null);
 
     startTransition(async () => {
-      const res = await upsertCreatorProfile(userId, {
+      const res = await upsertProfile(userId, {
         username,
         displayName,
         bio,
@@ -58,7 +61,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
       if (!res.success) {
         setErrorMessage(res.error);
       } else {
-        setSuccessMessage("Profil bio berhasil disimpan!");
+        setSuccessMessage("Profil akun berhasil diperbarui!");
         router.refresh();
       }
     });
@@ -67,14 +70,14 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-5 sm:p-6 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl shadow-xl space-y-5"
+      className="p-5 sm:p-6 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl shadow-xl space-y-5 w-full min-w-0"
     >
       <div>
         <h2 className="text-lg font-semibold text-white tracking-tight">
-          Informasi Profil Bio
+          Profil Akun Kreator
         </h2>
-        <p className="text-xs sm:text-sm text-neutral-400 mt-1">
-          Atur identitas publik dan alamat tautan bio personal Anda.
+        <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">
+          Kelola identitas utama akun Anda. Akun ini dapat memiliki beberapa halaman micro-site publik.
         </p>
       </div>
 
@@ -91,20 +94,20 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
       )}
 
       <div className="space-y-4">
-        {/* Username Slug */}
+        {/* Username Handle */}
         <div>
           <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-            Username URL (Slug) <span className="text-red-400">*</span>
+            Handle Akun (Username) <span className="text-red-400">*</span>
           </label>
           <div className="flex items-center rounded-xl border border-white/10 bg-neutral-950/60 focus-within:border-indigo-500/80 transition overflow-hidden min-w-0 w-full">
             <span className="px-3 py-2.5 text-xs sm:text-sm text-neutral-500 bg-white/[0.02] border-r border-white/5 select-none font-mono shrink-0">
-              openlynk.id/
+              @
             </span>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().trim())}
-              placeholder="username-kamu"
+              placeholder="username"
               required
               minLength={3}
               maxLength={30}
@@ -112,14 +115,14 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
             />
           </div>
           <p className="text-[11px] text-neutral-500 mt-1">
-            Gunakan 3-30 karakter (huruf kecil, angka, - atau _).
+            Identitas akun Anda di platform OpenLynk.
           </p>
         </div>
 
         {/* Display Name */}
         <div>
           <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-            Nama Tampilan <span className="text-red-400">*</span>
+            Nama Lengkap / Brand <span className="text-red-400">*</span>
           </label>
           <Input
             type="text"
@@ -136,7 +139,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
         <div>
           <div className="flex justify-between items-center mb-1.5">
             <label className="block text-xs font-medium text-neutral-300">
-              Bio Singkat
+              Bio Diri
             </label>
             <span className="text-[10px] text-neutral-500">
               {bio.length}/160
@@ -146,7 +149,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
             value={bio}
             onChange={(e) => setBio(e.target.value.slice(0, 160))}
             rows={3}
-            placeholder="Tulis deskripsi singkat tentang karya, keahlian, atau pesan untuk pengikutmu..."
+            placeholder="Deskripsi singkat tentang diri Anda, bidang keahlian, atau visi karya Anda..."
             className="w-full rounded-xl border border-white/10 bg-neutral-950/60 p-3 text-sm text-white placeholder:text-neutral-600 outline-none focus:border-indigo-500/80 transition resize-none"
           />
         </div>
@@ -154,7 +157,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
         {/* Avatar URL */}
         <div>
           <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-            URL Foto Avatar
+            URL Foto Profil / Avatar
           </label>
           <Input
             type="url"
@@ -168,7 +171,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
         {/* Social Media Links */}
         <div className="pt-2 border-t border-white/5">
           <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-3">
-            Akun Media Sosial
+            Media Sosial Resmi
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -212,7 +215,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
 
             <div>
               <label className="block text-[11px] text-neutral-400 mb-1">
-                WhatsApp (No. HP dengan kode 62)
+                WhatsApp (No. HP kode 62)
               </label>
               <Input
                 type="text"
@@ -258,7 +261,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
           disabled={isPending}
           className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl px-5 h-10 text-xs sm:text-sm min-h-[44px]"
         >
-          {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+          {isPending ? "Menyimpan..." : "Simpan Profil Akun"}
         </Button>
       </div>
     </form>

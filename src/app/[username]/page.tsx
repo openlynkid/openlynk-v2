@@ -1,31 +1,33 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getPublicProfile, PublicBioView } from "@/modules/bio";
+import { getPageBySlug, PublicPageView } from "@/modules/page";
 
-interface BioPageProps {
+interface PublicPageRouteProps {
   params: Promise<{
-    username: string;
+    username: string; // Dynamic path slug
   }>;
 }
 
 export async function generateMetadata({
   params,
-}: BioPageProps): Promise<Metadata> {
+}: PublicPageRouteProps): Promise<Metadata> {
   const { username } = await params;
-  const profile = await getPublicProfile(username);
+  const page = await getPageBySlug(username);
 
-  if (!profile) {
+  if (!page) {
     return {
-      title: "Profil Tidak Ditemukan | OpenLynk",
-      description: "Halaman bio ini belum tersedia atau telah dinonaktifkan.",
+      title: "Halaman Tidak Ditemukan | OpenLynk",
+      description: "Halaman ini belum tersedia atau telah dinonaktifkan.",
     };
   }
 
-  const metaTitle = `${profile.displayName} (@${profile.username}) | OpenLynk`;
+  const metaTitle = `${page.title} (@${page.profile.username}) | OpenLynk`;
   const metaDesc =
-    profile.bio ||
-    `Lihat tautan dan profil resmi ${profile.displayName} di OpenLynk.`;
+    page.description ||
+    page.profile.bio ||
+    `Lihat tautan dan profil resmi ${page.title} di OpenLynk.`;
+  const image = page.avatarUrl || page.profile.avatarUrl;
 
   return {
     title: metaTitle,
@@ -33,32 +35,32 @@ export async function generateMetadata({
     openGraph: {
       title: metaTitle,
       description: metaDesc,
-      url: `/${profile.username}`,
+      url: `/${page.slug}`,
       siteName: "OpenLynk",
-      images: profile.avatarUrl ? [{ url: profile.avatarUrl }] : [],
+      images: image ? [{ url: image }] : [],
       type: "profile",
     },
     twitter: {
       card: "summary",
       title: metaTitle,
       description: metaDesc,
-      images: profile.avatarUrl ? [profile.avatarUrl] : [],
+      images: image ? [image] : [],
     },
   };
 }
 
-async function BioContent({ params }: BioPageProps) {
+async function PageContent({ params }: PublicPageRouteProps) {
   const { username } = await params;
-  const profile = await getPublicProfile(username);
+  const pageData = await getPageBySlug(username);
 
-  if (!profile) {
+  if (!pageData) {
     notFound();
   }
 
-  return <PublicBioView data={profile} />;
+  return <PublicPageView data={pageData} />;
 }
 
-export default function BioPage(props: BioPageProps) {
+export default function PublicPage(props: PublicPageRouteProps) {
   return (
     <Suspense
       fallback={
@@ -67,7 +69,7 @@ export default function BioPage(props: BioPageProps) {
         </div>
       }
     >
-      <BioContent {...props} />
+      <PageContent {...props} />
     </Suspense>
   );
 }

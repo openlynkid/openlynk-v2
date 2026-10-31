@@ -1,16 +1,21 @@
 import Image from "next/image";
 import { RuneIcon } from "runeicons-react";
-import type { Profile } from "@/db/schema";
-import type { SocialLinks } from "../types";
+import type { Page, Profile } from "@/db/schema";
+import type { SocialLinks } from "@/modules/profile";
 
-interface ProfileHeaderProps {
+interface PageHeaderProps {
+  page: Page;
   profile: Profile;
 }
 
-export function ProfileHeader({ profile }: ProfileHeaderProps) {
+export function PageHeader({ page, profile }: PageHeaderProps) {
   const social = (profile.socialLinks ?? {}) as SocialLinks;
-  const initials = profile.displayName
-    ? profile.displayName
+  const avatar = page.avatarUrl || profile.avatarUrl;
+  const displayName = page.title || profile.displayName;
+  const description = page.description || profile.bio;
+
+  const initials = displayName
+    ? displayName
         .split(" ")
         .map((n) => n[0])
         .slice(0, 2)
@@ -24,10 +29,10 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       <div className="relative group mb-4">
         <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-indigo-500/40 via-violet-500/30 to-cyan-500/40 blur-md opacity-70 group-hover:opacity-100 transition duration-500" />
         <div className="relative size-24 sm:size-28 rounded-full bg-neutral-900 border-2 border-white/15 overflow-hidden flex items-center justify-center shadow-2xl">
-          {profile.avatarUrl ? (
+          {avatar ? (
             <Image
-              src={profile.avatarUrl}
-              alt={profile.displayName}
+              src={avatar}
+              alt={displayName}
               width={112}
               height={112}
               className="size-full object-cover"
@@ -42,14 +47,14 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         </div>
       </div>
 
-      {/* Name & Verified Badge */}
+      {/* Page Title & Verified Badge */}
       <div className="flex items-center justify-center gap-1.5 flex-wrap">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-          {profile.displayName}
+          {displayName}
         </h1>
         {profile.isVerified && (
           <span
-            title="Kreator Terverifikasi OpenLynk"
+            title="Akun Terverifikasi OpenLynk"
             className="inline-flex items-center justify-center text-indigo-400"
           >
             <RuneIcon name="glass-badge-check" type="glass" size={20} />
@@ -57,15 +62,18 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         )}
       </div>
 
-      {/* Username Handle */}
+      {/* Author Handle & Page Slug */}
       <p className="text-xs sm:text-sm font-medium text-neutral-400 mt-0.5">
-        @{profile.username}
+        oleh <strong className="text-neutral-300">@{profile.username}</strong>
+        {page.slug !== profile.username && (
+          <span className="text-neutral-500 ml-1">({page.slug})</span>
+        )}
       </p>
 
-      {/* Bio Description */}
-      {profile.bio && (
+      {/* Description */}
+      {description && (
         <p className="text-sm text-neutral-300/90 max-w-sm mt-3 leading-relaxed whitespace-pre-line px-2 font-normal">
-          {profile.bio}
+          {description}
         </p>
       )}
 

@@ -60,14 +60,20 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at"),
 });
 
-// --- OPENLYNK FITUR 01: BIO MODULE TABLES ---
+// --- ENUMS ---
 
-export const bioBlockTypeEnum = pgEnum("bio_block_type", [
+export const pageBlockTypeEnum = pgEnum("page_block_type", [
   "link",
   "bento_card",
   "social_row",
   "header_text",
+  "media_embed",
 ]);
+
+// Backward compatibility alias for enum
+export const bioBlockTypeEnum = pageBlockTypeEnum;
+
+// --- PROFILES (Akun Pengguna/Kreator - 1 to 1 dengan User) ---
 
 export const profiles = pgTable(
   "profiles",
@@ -77,18 +83,11 @@ export const profiles = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" })
       .unique(),
-    username: text("username").notNull().unique(),
+    username: text("username").notNull().unique(), // Handle unik akun (cth: "iwan")
     displayName: text("display_name").notNull(),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
     isVerified: boolean("is_verified").default(false).notNull(),
-    themeConfig: jsonb("theme_config")
-      .$type<{
-        themePreset: string;
-        accentColor: string;
-      }>()
-      .default({ themePreset: "obsidian", accentColor: "#6366f1" })
-      .notNull(),
     socialLinks: jsonb("social_links")
       .$type<{
         instagram?: string;
@@ -101,36 +100,83 @@ export const profiles = pgTable(
       }>()
       .default({})
       .notNull(),
-    isPublished: boolean("is_published").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (t) => [index("profiles_username_idx").on(t.username)]
 );
 
-export const bioBlocks = pgTable(
-  "bio_blocks",
+// --- PAGES (Halaman Publik - 1 Profile memiliki Banyak Pages) ---
+
+export const pages = pgTable(
+  "pages",
   {
     id: text("id").primaryKey(),
     profileId: text("profile_id")
       .notNull()
       .references(() => profiles.id, { onDelete: "cascade" }),
-    type: bioBlockTypeEnum("type").default("link").notNull(),
+    title: text("title").notNull(), // Judul halaman (cth: "Portofolio Utama", "Kelas Next.js")
+    slug: text("slug").notNull().unique(), // URL publik (cth: openlynk.id/iwan, openlynk.id/kelas)
+    description: text("description"),
+    avatarUrl: text("avatar_url"), // Avatar khusus halaman (opsional, fallback ke profile)
+    themeConfig: jsonb("theme_config")
+      .$type<{
+        themePreset: string;
+        accentColor: string;
+      }>()
+      .default({ themePreset: "obsidian", accentColor: "#6366f1" })
+      .notNull(),
+    isDefault: boolean("is_default").default(false).notNull(),
+    isPublished: boolean("is_published").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("pages_profile_idx").on(t.profileId),
+    index("pages_slug_idx").on(t.slug),
+  ]
+);
+
+// --- PAGE BLOCKS (Blok Konten & Bento di Dalam Suatu Page) ---
+
+export const pageBlocks = pgTable(
+  "page_blocks",
+  {
+    id: text("id").primaryKey(),
+    pageId: text("page_id")
+      .notNull()
+      .references(() => pages.id, { onDelete: "cascade" }),
+    type: pageBlockTypeEnum("type").default("link").notNull(),
     title: text("title").notNull(),
     url: text("url").notNull(),
     iconName: text("icon_name"),
+    colSpan: integer("col_span").default(1).notNull(),
+    rowSpan: integer("row_span").default(1).notNull(),
+    config: jsonb("config")
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (t) => [
-    index("bio_blocks_profile_idx").on(t.profileId),
-    index("bio_blocks_profile_sort_idx").on(t.profileId, t.sortOrder),
+    index("page_blocks_page_idx").on(t.pageId),
+    index("page_blocks_page_sort_idx").on(t.pageId, t.sortOrder),
   ]
 );
 
+// Backward compatibility alias for bioBlocks
+export const bioBlocks = pageBlocks;
+
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
-export type BioBlock = typeof bioBlocks.$inferSelect;
-export type NewBioBlock = typeof bioBlocks.$inferInsert;
+export type Page = typeof pages.$inferSelect;
+export type NewPage = typeof pages.$inferInsert;
+export type PageBlock = typeof pageBlocks.$inferSelect;
+export type NewPageBlock = typeof pageBlocks.$inferInsert;
+
+// Legacy alias types
+export type BioBlock = PageBlock;
+export type NewBioBlock = NewPageBlock;
