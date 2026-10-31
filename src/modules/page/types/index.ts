@@ -1,5 +1,7 @@
 import type { Page, PageBlock, Profile } from "@/db/schema";
 
+export * from "./themes";
+
 export type ThemeConfig = {
   themePreset: string;
   accentColor: string;
@@ -23,6 +25,7 @@ export type UpdatePageInput = {
   slug?: string;
   description?: string;
   avatarUrl?: string;
+  themeConfig?: ThemeConfig;
   isDefault?: boolean;
   isPublished?: boolean;
 };

@@ -13,3 +13,6 @@ export { PageCard } from "./components/page-card";
 export { PageEditorView } from "./components/page-editor-view";
 export { PagesListView } from "./components/pages-list-view";
 export { PageLinksManager } from "./components/page-links-manager";
+export { ThemeSelector } from "./components/theme-selector";
+export { PageShareModal } from "./components/page-share-modal";
+export { IconPicker } from "./components/icon-picker";

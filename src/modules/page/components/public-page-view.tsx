@@ -1,21 +1,53 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { RuneIcon } from "runeicons-react";
 import type { PublicPageData } from "../types";
+import { getThemePreset } from "../types/themes";
 import { PageHeader } from "./page-header";
 import { BentoGrid } from "./bento-grid";
+import { PageShareModal } from "./page-share-modal";
 
 interface PublicPageViewProps {
   data: PublicPageData;
 }
 
 export function PublicPageView({ data }: PublicPageViewProps) {
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const preset = getThemePreset(data.themeConfig?.themePreset);
+
+  const pageUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/${data.slug}`
+      : `https://openlynk.id/${data.slug}`;
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 relative selection:bg-neutral-800 overflow-x-hidden flex flex-col justify-between w-full">
-      {/* Ambient background glows */}
+      {/* Dynamic Ambient Theme Background Glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-indigo-500/10 blur-[120px] rounded-full" />
-        <div className="absolute top-1/2 -right-48 w-[350px] h-[350px] bg-cyan-500/5 blur-[140px] rounded-full" />
-        <div className="absolute bottom-0 -left-48 w-[350px] h-[350px] bg-violet-500/5 blur-[140px] rounded-full" />
+        <div
+          className={`absolute top-0 left-1/2 -translate-x-1/2 w-[550px] h-[350px] ${preset.glows.primary} blur-[130px] rounded-full transition-all duration-700`}
+        />
+        <div
+          className={`absolute top-1/2 -right-48 w-[380px] h-[380px] ${preset.glows.secondary} blur-[140px] rounded-full transition-all duration-700`}
+        />
+        <div
+          className={`absolute bottom-0 -left-48 w-[380px] h-[380px] ${preset.glows.tertiary} blur-[140px] rounded-full transition-all duration-700`}
+        />
+      </div>
+
+      {/* Top Floating Share Button */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+        <button
+          type="button"
+          onClick={() => setIsShareOpen(true)}
+          title="Bagikan Halaman"
+          aria-label="Bagikan Halaman Ini"
+          className="size-10 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-white/20 flex items-center justify-center text-neutral-300 hover:text-white transition shadow-lg backdrop-blur-md active:scale-95"
+        >
+          <RuneIcon name="glass-chain-link-3-1" type="glass" size={18} />
+        </button>
       </div>
 
       {/* Main Content Container */}
@@ -45,10 +77,21 @@ export function PublicPageView({ data }: PublicPageViewProps) {
             <RuneIcon name="glass-chain-link-3-1" type="glass" size={12} />
           </div>
           <span>
-            Dibuat dengan <strong className="font-semibold text-neutral-200 group-hover:text-white">OpenLynk</strong>
+            Dibuat dengan{" "}
+            <strong className="font-semibold text-neutral-200 group-hover:text-white">
+              OpenLynk
+            </strong>
           </span>
         </Link>
       </footer>
+
+      {/* Share & QR Code Modal */}
+      <PageShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        url={pageUrl}
+        title={data.title}
+      />
     </div>
   );
 }

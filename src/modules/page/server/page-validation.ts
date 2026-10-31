@@ -90,6 +90,12 @@ export const updatePageSchema = z.object({
     .max(200, "Deskripsi maksimal 200 karakter")
     .optional(),
   avatarUrl: z.string().trim().url("URL gambar tidak valid").or(z.literal("")).optional(),
+  themeConfig: z
+    .object({
+      themePreset: z.string(),
+      accentColor: z.string(),
+    })
+    .optional(),
   isDefault: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });

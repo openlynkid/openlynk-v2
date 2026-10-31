@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Profile } from "@/db/schema";
@@ -154,18 +155,42 @@ export function ProfileSettingsForm({
           />
         </div>
 
-        {/* Avatar URL */}
+        {/* Avatar URL with Live Preview */}
         <div>
           <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-            URL Foto Profil / Avatar
+            Foto Profil / Avatar Akun
           </label>
-          <Input
-            type="url"
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-            placeholder="https://ik.imagekit.io/... atau url gambar publik"
-            className="border-white/10 bg-neutral-950/60 text-white placeholder:text-neutral-600"
-          />
+          <div className="flex items-center gap-4">
+            <div className="size-16 rounded-full bg-neutral-900 border-2 border-white/15 overflow-hidden flex items-center justify-center shrink-0 shadow-lg relative group">
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={displayName || "Avatar Preview"}
+                  width={64}
+                  height={64}
+                  className="size-full object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="size-full bg-gradient-to-br from-indigo-600/30 to-violet-600/30 flex items-center justify-center text-neutral-300 font-bold text-sm">
+                  {displayName ? displayName.slice(0, 2).toUpperCase() : "@"}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <Input
+                type="url"
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
+                placeholder="https://ik.imagekit.io/... atau url gambar publik"
+                className="border-white/10 bg-neutral-950/60 text-white placeholder:text-neutral-600 text-xs sm:text-sm"
+              />
+              <p className="text-[11px] text-neutral-500 mt-1">
+                Masukkan URL gambar avatar atau logo brand Anda.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Social Media Links */}

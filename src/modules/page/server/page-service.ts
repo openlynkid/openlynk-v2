@@ -190,8 +190,15 @@ export async function updatePage(
     return { success: false, error: "Halaman tidak ditemukan" };
   }
 
-  const { title, slug, description, avatarUrl, isDefault, isPublished } =
-    parsed.data;
+  const {
+    title,
+    slug,
+    description,
+    avatarUrl,
+    themeConfig,
+    isDefault,
+    isPublished,
+  } = parsed.data;
 
   // If slug is changing, verify it is not taken
   if (slug && slug !== existingPage.slug.toLowerCase()) {
@@ -224,6 +231,7 @@ export async function updatePage(
   if (slug !== undefined) updateData.slug = slug;
   if (description !== undefined) updateData.description = description;
   if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl ? avatarUrl : null;
+  if (themeConfig !== undefined) updateData.themeConfig = themeConfig;
   if (isDefault !== undefined) updateData.isDefault = isDefault;
   if (isPublished !== undefined) updateData.isPublished = isPublished;
 

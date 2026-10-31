@@ -10,6 +10,8 @@ import type { Page, PageBlock, Profile } from "@/db/schema";
 import { updatePage, deletePage } from "../server/page-service";
 import { PageLinksManager } from "./page-links-manager";
 import { PublicPageView } from "./public-page-view";
+import { ThemeSelector } from "./theme-selector";
+import { PageShareModal } from "./page-share-modal";
 
 interface PageEditorViewProps {
   profileId: string;
@@ -28,16 +30,39 @@ export function PageEditorView({
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const [title, setTitle] = useState(page.title);
   const [slug, setSlug] = useState(page.slug);
   const [description, setDescription] = useState(page.description ?? "");
   const [avatarUrl, setAvatarUrl] = useState(page.avatarUrl ?? "");
+  const [themePreset, setThemePreset] = useState(
+    page.themeConfig?.themePreset || "obsidian"
+  );
+  const [accentColor, setAccentColor] = useState(
+    page.themeConfig?.accentColor || "#6366f1"
+  );
   const [isDefault, setIsDefault] = useState(page.isDefault);
   const [isPublished, setIsPublished] = useState(page.isPublished);
   const [currentBlocks, setCurrentBlocks] = useState<PageBlock[]>(blocks);
 
   const activeBlocks = currentBlocks.filter((b) => b.isActive);
+
+  const pageUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/${slug}`
+      : `https://openlynk.id/${slug}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback
+    }
+  };
 
   const handleSavePage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +75,10 @@ export function PageEditorView({
         slug,
         description: description ? description.trim() : undefined,
         avatarUrl: avatarUrl ? avatarUrl.trim() : undefined,
+        themeConfig: {
+          themePreset,
+          accentColor,
+        },
         isDefault,
         isPublished,
       });
@@ -95,18 +124,18 @@ export function PageEditorView({
             </Link>
             <span className="text-neutral-600">/</span>
             <span className="text-xs font-mono text-neutral-300">
-              openlynk.id/{page.slug}
+              openlynk.id/{slug}
             </span>
           </div>
 
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2 mt-1 flex-wrap">
-            <span>{page.title}</span>
-            {page.isDefault && (
+            <span>{title}</span>
+            {isDefault && (
               <span className="text-xs font-normal px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                 Halaman Utama
               </span>
             )}
-            {!page.isPublished && (
+            {!isPublished && (
               <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400 font-mono">
                 Draft (Nonaktif)
               </span>
@@ -115,17 +144,43 @@ export function PageEditorView({
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+          {/* Quick Copy Link Button */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCopyLink}
+            className={`rounded-xl text-xs h-10 min-h-[44px] px-3.5 transition ${
+              copied
+                ? "bg-emerald-600/20 border-emerald-500 text-emerald-300"
+                : "border-white/10 text-neutral-300 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <RuneIcon name="glass-chain-link-3-1" type="glass" size={16} />
+            <span>{copied ? "Tersalin! ✓" : "Salin Link"}</span>
+          </Button>
+
+          {/* QR Code / Share Modal Trigger */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsShareOpen(true)}
+            className="border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 rounded-xl text-xs h-10 min-h-[44px] px-3.5"
+          >
+            <RuneIcon name="glass-sparkle" type="glass" size={16} />
+            <span>QR &amp; Bagikan</span>
+          </Button>
+
+          {/* Live Link */}
           <Link
-            href={`/${page.slug}`}
+            href={`/${slug}`}
             target="_blank"
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs sm:text-sm font-semibold text-white transition min-h-[44px]"
           >
-            <RuneIcon name="glass-chain-link-3-1" type="glass" size={16} />
-            <span>Lihat Halaman Live</span>
+            <span>Lihat Live</span>
             <RuneIcon name="glass-arrow-right-circle" type="glass" size={14} />
           </Link>
 
-          {!page.isDefault && (
+          {!isDefault && (
             <Button
               type="button"
               variant="outline"
@@ -133,27 +188,28 @@ export function PageEditorView({
               disabled={isPending}
               className="border-red-500/20 text-red-400 hover:bg-red-500/10 rounded-xl text-xs h-10 min-h-[44px]"
             >
-              Hapus Halaman
+              Hapus
             </Button>
           )}
         </div>
       </div>
 
-      {/* Grid: Editor (Left) & Smartphone Preview (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full min-w-0">
-        {/* Left Column */}
-        <div className="lg:col-span-7 space-y-6 w-full min-w-0">
+      {/* Main Grid: Left Editor & Right Mockup */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Form & Blocks */}
+        <div className="lg:col-span-7 space-y-6 min-w-0">
           {/* Page Settings Form */}
           <form
             onSubmit={handleSavePage}
-            className="p-5 sm:p-6 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl shadow-xl space-y-4 w-full min-w-0"
+            className="p-5 sm:p-6 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl shadow-xl space-y-5"
           >
             <div>
-              <h2 className="text-lg font-semibold text-white tracking-tight">
-                Pengaturan Halaman
+              <h2 className="text-lg font-semibold text-white tracking-tight flex items-center gap-2">
+                <RuneIcon name="glass-edit-pen" type="glass" size={18} />
+                <span>Pengaturan Halaman</span>
               </h2>
-              <p className="text-xs text-neutral-400 mt-0.5">
-                Sesuaikan judul, slug URL publik, dan foto sampul halaman ini.
+              <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">
+                Ubah judul, URL slug, bio khusus, dan pilihan tema halaman ini.
               </p>
             </div>
 
@@ -169,7 +225,7 @@ export function PageEditorView({
               </div>
             )}
 
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-neutral-300 mb-1">
                   Judul Halaman <span className="text-red-400">*</span>
@@ -230,7 +286,18 @@ export function PageEditorView({
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-white/5">
+              {/* Theme Customizer */}
+              <div className="pt-3 border-t border-white/5">
+                <ThemeSelector
+                  selectedPresetId={themePreset}
+                  onSelectPreset={(presetId, accent) => {
+                    setThemePreset(presetId);
+                    setAccentColor(accent);
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/5">
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -262,7 +329,7 @@ export function PageEditorView({
                   disabled={isPending}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs h-9 px-4 font-medium"
                 >
-                  {isPending ? "Menyimpan..." : "Simpan Halaman"}
+                  {isPending ? "Menyimpan..." : "Simpan Pengaturan"}
                 </Button>
               </div>
             </div>
@@ -279,7 +346,8 @@ export function PageEditorView({
 
         {/* Right Column: Smartphone Mockup Preview */}
         <div className="hidden lg:block lg:col-span-5 sticky top-24">
-          <div className="text-center mb-2">
+          <div className="text-center mb-2 flex items-center justify-center gap-2">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider">
               Live Preview: openlynk.id/{slug}
             </span>
@@ -296,6 +364,10 @@ export function PageEditorView({
                   slug,
                   description,
                   avatarUrl: avatarUrl ? avatarUrl : null,
+                  themeConfig: {
+                    themePreset,
+                    accentColor,
+                  },
                   profile,
                   blocks: activeBlocks,
                 }}
@@ -304,6 +376,14 @@ export function PageEditorView({
           </div>
         </div>
       </div>
+
+      {/* Share Modal */}
+      <PageShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        url={pageUrl}
+        title={title}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import type { PageBlock } from "@/db/schema";
 import type { PageBlockType, PageBlockConfig } from "../types";
 import { detectMediaEmbed } from "../server/embed-helpers";
+import { IconPicker } from "./icon-picker";
 import {
   createPageBlock,
   updatePageBlock,
@@ -46,15 +47,17 @@ export function PageLinksManager({
       setInternalBlocks(next);
     }
   };
+
   const [error, setError] = useState<string | null>(null);
 
-  // Form states
+  // Form states (Add)
   const [isAdding, setIsAdding] = useState(false);
   const [selectedType, setSelectedType] = useState<PageBlockType>("link");
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newSubtitle, setNewSubtitle] = useState("");
   const [newBadgeText, setNewBadgeText] = useState("");
+  const [newIcon, setNewIcon] = useState("glass-chain-link-3-1");
   const [newColSpan, setNewColSpan] = useState<number>(1);
   const [newRowSpan, setNewRowSpan] = useState<number>(1);
 
@@ -63,11 +66,14 @@ export function PageLinksManager({
   const [editTitle, setEditTitle] = useState("");
   const [editUrl, setEditUrl] = useState("");
   const [editSubtitle, setEditSubtitle] = useState("");
+  const [editBadgeText, setEditBadgeText] = useState("");
+  const [editIcon, setEditIcon] = useState("glass-sparkle");
   const [editColSpan, setEditColSpan] = useState<number>(1);
   const [editRowSpan, setEditRowSpan] = useState<number>(1);
 
   // Auto detect media embed when typing URL in media_embed tab
-  const detectedMedia = selectedType === "media_embed" && newUrl ? detectMediaEmbed(newUrl) : null;
+  const detectedMedia =
+    selectedType === "media_embed" && newUrl ? detectMediaEmbed(newUrl) : null;
 
   const handleResetForm = () => {
     setIsAdding(false);
@@ -76,6 +82,7 @@ export function PageLinksManager({
     setNewUrl("");
     setNewSubtitle("");
     setNewBadgeText("");
+    setNewIcon("glass-chain-link-3-1");
     setNewColSpan(1);
     setNewRowSpan(1);
   };
@@ -112,14 +119,7 @@ export function PageLinksManager({
         colSpan: selectedType === "header_text" ? 2 : newColSpan,
         rowSpan: selectedType === "header_text" ? 1 : newRowSpan,
         config,
-        iconName:
-          selectedType === "media_embed"
-            ? "glass-video-recorder"
-            : selectedType === "bento_card"
-              ? "glass-sparkle"
-              : selectedType === "header_text"
-                ? undefined
-                : "glass-chain-link-3-1",
+        iconName: selectedType === "header_text" ? undefined : newIcon,
       });
 
       if (!res.success) {
@@ -179,6 +179,8 @@ export function PageLinksManager({
     setEditTitle(block.title);
     setEditUrl(block.url);
     setEditSubtitle(config.subtitle ?? "");
+    setEditBadgeText(config.badgeText ?? "");
+    setEditIcon(block.iconName || "glass-sparkle");
     setEditColSpan(block.colSpan);
     setEditRowSpan(block.rowSpan);
   };
@@ -191,12 +193,14 @@ export function PageLinksManager({
     const updatedConfig: PageBlockConfig = {
       ...currentConfig,
       subtitle: editSubtitle.trim() || undefined,
+      badgeText: editBadgeText.trim() || undefined,
     };
 
     startTransition(async () => {
       const res = await updatePageBlock(profileId, pageId, block.id, {
         title: editTitle.trim(),
         url: editUrl.trim() || "#",
+        iconName: block.type === "header_text" ? undefined : editIcon,
         colSpan: editColSpan,
         rowSpan: editRowSpan,
         config: updatedConfig,
@@ -273,7 +277,7 @@ export function PageLinksManager({
             </span>
           </h2>
           <p className="text-xs sm:text-sm text-neutral-400 mt-0.5">
-            Susun tata letak halaman: tautan, kartu bento visual, video, atau pemisah seksi.
+            Susun tata letak halaman: tautan, kartu bento visual, video, musik, atau pemisah seksi.
           </p>
         </div>
 
@@ -304,7 +308,7 @@ export function PageLinksManager({
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <span className="text-sm font-semibold text-white flex items-center gap-2">
               <RuneIcon name="glass-sparkle" type="glass" size={18} />
-              <span>Tambah Blok Bento Baru</span>
+              <span>Tambah Blok Baru</span>
             </span>
             <button
               type="button"
@@ -327,24 +331,28 @@ export function PageLinksManager({
                   label: "Tautan",
                   desc: "Pill link klasik",
                   icon: "glass-chain-link-3-1",
+                  defaultIcon: "glass-chain-link-3-1",
                 },
                 {
                   id: "bento_card",
                   label: "Kartu Bento",
                   desc: "Kotak visual ber-glow",
                   icon: "glass-sparkle",
+                  defaultIcon: "glass-sparkle",
                 },
                 {
                   id: "media_embed",
                   label: "Media Player",
                   desc: "YouTube / Spotify",
                   icon: "glass-video-recorder",
+                  defaultIcon: "glass-video-recorder",
                 },
                 {
                   id: "header_text",
                   label: "Judul Seksi",
                   desc: "Pemisah kategori",
                   icon: "glass-edit-pen",
+                  defaultIcon: "glass-sparkle",
                 },
               ].map((t) => (
                 <button
@@ -352,6 +360,7 @@ export function PageLinksManager({
                   type="button"
                   onClick={() => {
                     setSelectedType(t.id as PageBlockType);
+                    setNewIcon(t.defaultIcon);
                     if (t.id === "bento_card") {
                       setNewColSpan(1);
                       setNewRowSpan(1);
@@ -377,6 +386,14 @@ export function PageLinksManager({
               ))}
             </div>
           </div>
+
+          {/* Icon Picker for Link or Bento Card */}
+          {(selectedType === "link" || selectedType === "bento_card") && (
+            <IconPicker
+              selectedIcon={newIcon}
+              onSelectIcon={(icon) => setNewIcon(icon)}
+            />
+          )}
 
           {/* Inputs for Title */}
           <div>
@@ -484,7 +501,7 @@ export function PageLinksManager({
                   }}
                   className={`p-2 rounded-xl border text-center transition ${
                     newColSpan === 1 && newRowSpan === 1
-                      ? "bg-indigo-600/20 border-indigo-500 text-white"
+                      ? "bg-indigo-600/20 border-indigo-500 text-white ring-2 ring-indigo-500/20"
                       : "bg-white/[0.03] border-white/5 text-neutral-400 hover:text-white"
                   }`}
                 >
@@ -500,7 +517,7 @@ export function PageLinksManager({
                   }}
                   className={`p-2 rounded-xl border text-center transition ${
                     newColSpan === 2 && newRowSpan === 1
-                      ? "bg-indigo-600/20 border-indigo-500 text-white"
+                      ? "bg-indigo-600/20 border-indigo-500 text-white ring-2 ring-indigo-500/20"
                       : "bg-white/[0.03] border-white/5 text-neutral-400 hover:text-white"
                   }`}
                 >
@@ -516,7 +533,7 @@ export function PageLinksManager({
                   }}
                   className={`p-2 rounded-xl border text-center transition ${
                     newColSpan === 2 && newRowSpan === 2
-                      ? "bg-indigo-600/20 border-indigo-500 text-white"
+                      ? "bg-indigo-600/20 border-indigo-500 text-white ring-2 ring-indigo-500/20"
                       : "bg-white/[0.03] border-white/5 text-neutral-400 hover:text-white"
                   }`}
                 >
@@ -568,10 +585,19 @@ export function PageLinksManager({
                 }`}
               >
                 {editingId === block.id ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3.5 p-1">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                      <span className="text-xs font-semibold text-indigo-300">
+                        Edit Blok: {block.title}
+                      </span>
+                      <span className="text-[10px] text-neutral-400">
+                        {badge.label}
+                      </span>
+                    </div>
+
                     <div>
                       <label className="block text-xs text-neutral-400 mb-1">
-                        Judul
+                        Judul Blok <span className="text-red-400">*</span>
                       </label>
                       <Input
                         type="text"
@@ -580,10 +606,11 @@ export function PageLinksManager({
                         className="border-white/10 bg-neutral-900/80 text-white text-sm"
                       />
                     </div>
+
                     {block.type !== "header_text" && (
                       <div>
                         <label className="block text-xs text-neutral-400 mb-1">
-                          URL
+                          URL Tujuan <span className="text-red-400">*</span>
                         </label>
                         <Input
                           type="url"
@@ -593,47 +620,99 @@ export function PageLinksManager({
                         />
                       </div>
                     )}
+
+                    {/* Edit Icon for non-header blocks */}
+                    {block.type !== "header_text" && (
+                      <IconPicker
+                        selectedIcon={editIcon}
+                        onSelectIcon={(icon) => setEditIcon(icon)}
+                      />
+                    )}
+
                     {block.type === "bento_card" && (
                       <>
-                        <div>
-                          <label className="block text-xs text-neutral-400 mb-1">
-                            Subtitle
-                          </label>
-                          <Input
-                            type="text"
-                            value={editSubtitle}
-                            onChange={(e) => setEditSubtitle(e.target.value)}
-                            className="border-white/10 bg-neutral-900/80 text-white text-sm"
-                          />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs text-neutral-400 mb-1">
+                              Subtitle
+                            </label>
+                            <Input
+                              type="text"
+                              value={editSubtitle}
+                              onChange={(e) => setEditSubtitle(e.target.value)}
+                              className="border-white/10 bg-neutral-900/80 text-white text-sm"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs text-neutral-400 mb-1">
+                              Badge Teks (Opsional)
+                            </label>
+                            <Input
+                              type="text"
+                              value={editBadgeText}
+                              onChange={(e) => setEditBadgeText(e.target.value)}
+                              placeholder="misal: BARU"
+                              className="border-white/10 bg-neutral-900/80 text-white text-sm"
+                            />
+                          </div>
                         </div>
-                        <div className="flex gap-2 items-center">
-                          <label className="text-xs text-neutral-400">Ukuran Kolom:</label>
-                          <button
-                            type="button"
-                            onClick={() => setEditColSpan(1)}
-                            className={`px-2 py-1 rounded text-xs border ${
-                              editColSpan === 1
-                                ? "bg-indigo-600 text-white border-indigo-500"
-                                : "bg-neutral-900 text-neutral-400 border-white/10"
-                            }`}
-                          >
-                            1x Kolom
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditColSpan(2)}
-                            className={`px-2 py-1 rounded text-xs border ${
-                              editColSpan === 2
-                                ? "bg-indigo-600 text-white border-indigo-500"
-                                : "bg-neutral-900 text-neutral-400 border-white/10"
-                            }`}
-                          >
-                            2x Kolom (Lebar)
-                          </button>
+
+                        <div>
+                          <label className="block text-xs text-neutral-400 mb-1.5">
+                            Ukuran Kartu:
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditColSpan(1);
+                                setEditRowSpan(1);
+                              }}
+                              className={`p-2 rounded-xl border text-center transition ${
+                                editColSpan === 1 && editRowSpan === 1
+                                  ? "bg-indigo-600/30 border-indigo-500 text-white"
+                                  : "bg-neutral-900/60 border-white/10 text-neutral-400"
+                              }`}
+                            >
+                              <div className="text-xs font-semibold">1x1 Kotak</div>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditColSpan(2);
+                                setEditRowSpan(1);
+                              }}
+                              className={`p-2 rounded-xl border text-center transition ${
+                                editColSpan === 2 && editRowSpan === 1
+                                  ? "bg-indigo-600/30 border-indigo-500 text-white"
+                                  : "bg-neutral-900/60 border-white/10 text-neutral-400"
+                              }`}
+                            >
+                              <div className="text-xs font-semibold">2x1 Lebar</div>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditColSpan(2);
+                                setEditRowSpan(2);
+                              }}
+                              className={`p-2 rounded-xl border text-center transition ${
+                                editColSpan === 2 && editRowSpan === 2
+                                  ? "bg-indigo-600/30 border-indigo-500 text-white"
+                                  : "bg-neutral-900/60 border-white/10 text-neutral-400"
+                              }`}
+                            >
+                              <div className="text-xs font-semibold">2x2 Besar</div>
+                            </button>
+                          </div>
                         </div>
                       </>
                     )}
-                    <div className="flex justify-end gap-2">
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
                       <Button
                         type="button"
                         variant="outline"
@@ -646,9 +725,9 @@ export function PageLinksManager({
                         type="button"
                         onClick={() => handleSaveEdit(block)}
                         disabled={isPending}
-                        className="bg-indigo-600 text-white text-xs h-8 rounded-lg px-3"
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-8 rounded-lg px-4 font-medium"
                       >
-                        Simpan
+                        {isPending ? "Menyimpan..." : "Simpan Perubahan"}
                       </Button>
                     </div>
                   </div>
@@ -676,6 +755,17 @@ export function PageLinksManager({
                           <RuneIcon name="glass-arrow-down" type="glass" size={14} />
                         </button>
                       </div>
+
+                      {/* Icon Thumbnail Pill */}
+                      {block.type !== "header_text" && (
+                        <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-neutral-300 shrink-0">
+                          <RuneIcon
+                            name={block.iconName || "glass-chain-link-3-1"}
+                            type="glass"
+                            size={18}
+                          />
+                        </div>
+                      )}
 
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
