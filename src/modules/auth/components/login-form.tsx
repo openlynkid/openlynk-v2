@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { RuneIcon } from "runeicons-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,43 +86,53 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <div className="w-full max-w-md relative">
+      {/* Background ambient glow */}
+      <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-indigo-500/10 blur-[100px] pointer-events-none rounded-full" />
+
       {/* Logo & Header */}
-      <div className="text-center mb-8">
-        <Link href="/" className="inline-flex items-center gap-2 mb-3">
-          <div className="size-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-sky-500/20">
-            OL
+      <div className="text-center mb-8 relative">
+        <Link href="/" className="inline-flex items-center gap-3 mb-3 group">
+          <div className="size-11 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-white/25 transition">
+            <RuneIcon name="glass-chain-link-3-1" type="glass" size={26} />
           </div>
-          <span className="font-bold text-xl tracking-tight text-white">OpenLynk</span>
+          <span className="font-bold text-2xl tracking-tight text-white">OpenLynk</span>
         </Link>
-        <p className="text-sm text-neutral-400">
-          Autentikasi aman dengan Better Auth, Drizzle ORM, & PostgreSQL
+        <p className="text-xs text-neutral-400 mt-1">
+          Autentikasi modern & aman bergaya Runeicon UI
         </p>
       </div>
 
       {/* Auth Card */}
-      <Card className="border border-neutral-800 bg-neutral-900/70 backdrop-blur-xl shadow-2xl rounded-2xl">
-        <CardHeader className="space-y-1 pb-4">
-          <CardTitle className="text-xl font-bold text-white">
+      <Card className="rune-glass border-white/10 text-white rounded-2xl relative shadow-2xl">
+        <CardHeader className="space-y-1.5 pb-4">
+          <CardTitle className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <RuneIcon
+              name={isSignUp ? "identity-user-plus" : "glass-lock-1"}
+              type={isSignUp ? "duotone" : "glass"}
+              size={20}
+            />
             {isSignUp ? "Buat Akun Baru" : "Masuk ke Akun Anda"}
           </CardTitle>
-          <CardDescription className="text-neutral-400 text-sm">
+          <CardDescription className="text-neutral-400 text-xs">
             {isSignUp
-              ? "Isi formulir di bawah untuk mendaftarkan akun baru"
-              : "Masukkan email dan kata sandi Anda untuk melanjutkan"}
+              ? "Daftar untuk mulai mengelola tautan dan identitas Anda"
+              : "Masukkan email dan kata sandi untuk mengakses dashboard"}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-950/50 border border-red-800 text-red-200 text-xs">
-              ⚠️ {error}
+            <div className="mb-4 p-3 rounded-xl bg-red-950/40 border border-red-800/80 text-red-200 text-xs flex items-center gap-2">
+              <span className="text-sm">⚠️</span>
+              <span>{error}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 p-3 rounded-lg bg-emerald-950/50 border border-emerald-800 text-emerald-200 text-xs">
-              ✓ {success}
+            <div className="mb-4 p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/80 text-emerald-200 text-xs flex items-center gap-2">
+              <span className="text-sm">✓</span>
+              <span>{success}</span>
             </div>
           )}
 
@@ -134,12 +145,12 @@ export function LoginForm() {
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Contoh: Thoth User"
+                  placeholder="Contoh: Alex Rivers"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required={isSignUp}
                   disabled={loading}
-                  className="border-neutral-700 bg-neutral-950 text-neutral-100 placeholder:text-neutral-600 focus-visible:ring-sky-500"
+                  className="border-white/10 bg-black/40 text-neutral-100 placeholder:text-neutral-600 focus-visible:ring-indigo-500 rounded-xl"
                 />
               </div>
             )}
@@ -156,7 +167,7 @@ export function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="border-neutral-700 bg-neutral-950 text-neutral-100 placeholder:text-neutral-600 focus-visible:ring-sky-500"
+                className="border-white/10 bg-black/40 text-neutral-100 placeholder:text-neutral-600 focus-visible:ring-indigo-500 rounded-xl"
               />
             </div>
 
@@ -168,7 +179,7 @@ export function LoginForm() {
                 {!isSignUp && (
                   <Link
                     href="/forgot-password"
-                    className="text-xs text-sky-400 hover:text-sky-300 underline underline-offset-4"
+                    className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-4"
                   >
                     Lupa kata sandi?
                   </Link>
@@ -182,21 +193,21 @@ export function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={loading}
-                className="border-neutral-700 bg-neutral-950 text-neutral-100 placeholder:text-neutral-600 focus-visible:ring-sky-500"
+                className="border-white/10 bg-black/40 text-neutral-100 placeholder:text-neutral-600 focus-visible:ring-indigo-500 rounded-xl"
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white font-semibold shadow-lg shadow-sky-500/20 mt-2"
+              className="w-full bg-white hover:bg-neutral-200 text-black font-semibold shadow-lg shadow-white/5 rounded-xl transition mt-2 h-10"
               disabled={loading}
             >
-              {loading ? "Memproses..." : isSignUp ? "Daftar Sekarang" : "Masuk"}
+              {loading ? "Memproses..." : isSignUp ? "Daftar Sekarang →" : "Masuk ke Akun →"}
             </Button>
           </form>
         </CardContent>
 
-        <CardFooter className="pt-2 pb-6 flex flex-col items-center border-t border-neutral-800/80 text-xs text-neutral-400">
+        <CardFooter className="pt-2 pb-6 flex flex-col items-center border-t border-white/5 text-xs text-neutral-400">
           <p>
             {isSignUp ? "Sudah memiliki akun?" : "Belum punya akun?"}{" "}
             <button
@@ -206,7 +217,7 @@ export function LoginForm() {
                 setError(null);
                 setSuccess(null);
               }}
-              className="text-sky-400 hover:text-sky-300 font-semibold underline underline-offset-4 ml-1"
+              className="text-indigo-400 hover:text-indigo-300 font-semibold underline underline-offset-4 ml-1"
             >
               {isSignUp ? "Masuk di sini" : "Daftar sekarang"}
             </button>
@@ -218,9 +229,9 @@ export function LoginForm() {
       <div className="text-center mt-6">
         <Link
           href="/"
-          className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
+          className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
         >
-          ← Kembali ke Beranda
+          <span>←</span> Kembali ke Beranda
         </Link>
       </div>
     </div>
