@@ -261,7 +261,7 @@ export function BioLinksManager({
           blocks.map((block, index) => (
             <div
               key={block.id}
-              className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
+              className={`p-3.5 sm:p-4 rounded-xl border transition-all min-w-0 ${
                 block.isActive
                   ? "bg-neutral-950/60 border-white/10 hover:border-white/20"
                   : "bg-neutral-950/30 border-white/5 opacity-60"

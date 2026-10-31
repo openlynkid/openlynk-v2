@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${inter.variable} dark font-sans h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground overflow-x-hidden">
         <ImageKitProvider urlEndpoint={imagekitUrlEndpoint}>
           {children}
         </ImageKitProvider>

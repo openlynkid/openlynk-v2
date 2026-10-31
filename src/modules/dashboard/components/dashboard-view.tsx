@@ -71,23 +71,25 @@ export function DashboardView() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between relative selection:bg-neutral-800">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between relative selection:bg-neutral-800 overflow-x-hidden w-full">
       {/* Background ambient lighting */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 blur-[130px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-10 left-1/4 w-96 h-96 bg-cyan-500/5 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 blur-[130px] rounded-full" />
+        <div className="absolute bottom-10 left-1/4 w-96 h-96 bg-cyan-500/5 blur-[140px] rounded-full" />
+      </div>
 
       {/* Top Navigation */}
-      <header className="border-b border-white/10 bg-neutral-950/70 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+      <header className="border-b border-white/10 bg-neutral-950/70 backdrop-blur-xl sticky top-0 z-50 w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between min-w-0">
+          <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
               <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-white/20 transition">
                 <RuneIcon name="glass-chain-link-3-1" type="glass" size={20} />
               </div>
               <span className="font-semibold text-base sm:text-lg tracking-tight text-white">OpenLynk</span>
             </Link>
 
-            <nav className="hidden sm:flex items-center gap-1">
+            <nav className="hidden sm:flex items-center gap-1 shrink-0">
               <Link
                 href="/dashboard"
                 className="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-white/[0.08] border border-white/10 transition"
@@ -103,8 +105,8 @@ export function DashboardView() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            <span className="text-xs text-neutral-400 hidden md:inline">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <span className="text-xs text-neutral-400 hidden md:inline truncate max-w-[200px]">
               Login sebagai: <strong className="text-neutral-200 font-medium">{session.user.name}</strong>
             </span>
             <Button
@@ -120,7 +122,7 @@ export function DashboardView() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 w-full relative">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 w-full relative min-w-0">
         <div className="mb-8 sm:mb-10">
           <div className="rune-pill mb-3 sm:mb-4">
             <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />

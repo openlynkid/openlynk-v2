@@ -22,11 +22,11 @@ export function BioDashboardView({
   const activeBlocks = blocks.filter((b) => b.isActive);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full min-w-0">
       {/* Top Banner & Quick Links */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-neutral-900/60 border border-white/10 backdrop-blur-xl min-w-0">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2 flex-wrap">
             <span>Editor Halaman Bio</span>
             <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
               Fitur 01
@@ -41,23 +41,23 @@ export function BioDashboardView({
           <Link
             href={`/${profile.username}`}
             target="_blank"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs sm:text-sm font-semibold text-white transition self-start sm:self-auto min-h-[44px]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-xs sm:text-sm font-semibold text-white transition self-start sm:self-auto min-h-[44px] shrink-0"
           >
             <RuneIcon name="glass-chain-link-3-1" type="glass" size={16} />
             <span>Lihat Halaman Publik</span>
             <RuneIcon name="glass-arrow-right-circle" type="glass" size={14} />
           </Link>
         ) : (
-          <div className="text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl">
+          <div className="text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl shrink-0">
             Simpan profil untuk mengaktifkan URL publik Anda.
           </div>
         )}
       </div>
 
       {/* Grid: Editor (Left) & Live Preview Mockup (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full min-w-0">
         {/* Left Column: Editor Forms */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-6 w-full min-w-0">
           <BioProfileForm userId={userId} initialProfile={profile} />
           {profile && (
             <BioLinksManager userId={userId} initialBlocks={blocks} />

@@ -96,8 +96,8 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
           <label className="block text-xs font-medium text-neutral-300 mb-1.5">
             Username URL (Slug) <span className="text-red-400">*</span>
           </label>
-          <div className="flex items-center rounded-xl border border-white/10 bg-neutral-950/60 focus-within:border-indigo-500/80 transition overflow-hidden">
-            <span className="px-3 py-2.5 text-xs sm:text-sm text-neutral-500 bg-white/[0.02] border-r border-white/5 select-none font-mono">
+          <div className="flex items-center rounded-xl border border-white/10 bg-neutral-950/60 focus-within:border-indigo-500/80 transition overflow-hidden min-w-0 w-full">
+            <span className="px-3 py-2.5 text-xs sm:text-sm text-neutral-500 bg-white/[0.02] border-r border-white/5 select-none font-mono shrink-0">
               openlynk.id/
             </span>
             <input
@@ -108,7 +108,7 @@ export function BioProfileForm({ userId, initialProfile }: BioProfileFormProps) 
               required
               minLength={3}
               maxLength={30}
-              className="w-full bg-transparent px-3 py-2 text-sm text-white placeholder:text-neutral-600 outline-none font-mono"
+              className="w-full min-w-0 bg-transparent px-3 py-2 text-sm text-white placeholder:text-neutral-600 outline-none font-mono"
             />
           </div>
           <p className="text-[11px] text-neutral-500 mt-1">
