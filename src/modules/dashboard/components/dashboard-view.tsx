@@ -41,7 +41,7 @@ export function DashboardView() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4 relative">
+      <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4 relative overflow-hidden w-full">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-500/5 blur-[120px] pointer-events-none rounded-full" />
         <Card className="rune-glass max-w-md w-full border-white/10 p-6 text-center rounded-2xl relative shadow-2xl">
           <CardHeader>

@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between relative selection:bg-neutral-800 overflow-hidden">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between relative selection:bg-neutral-800 overflow-hidden w-full">
       {/* Ambient background glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-indigo-500/10 blur-[130px] pointer-events-none rounded-full" />
-      <div className="absolute top-1/3 -right-48 w-[400px] h-[400px] bg-cyan-500/5 blur-[150px] pointer-events-none rounded-full" />
-      <div className="absolute -bottom-20 -left-48 w-[400px] h-[400px] bg-violet-500/5 blur-[150px] pointer-events-none rounded-full" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-indigo-500/10 blur-[130px] rounded-full" />
+        <div className="absolute top-1/3 -right-48 w-[400px] h-[400px] bg-cyan-500/5 blur-[150px] rounded-full" />
+        <div className="absolute -bottom-20 -left-48 w-[400px] h-[400px] bg-violet-500/5 blur-[150px] rounded-full" />
+      </div>
 
       {/* Top Navbar */}
       <header className="border-b border-white/10 bg-neutral-950/70 backdrop-blur-xl sticky top-0 z-50">

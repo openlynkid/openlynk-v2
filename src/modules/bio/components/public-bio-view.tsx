@@ -10,11 +10,13 @@ interface PublicBioViewProps {
 
 export function PublicBioView({ data }: PublicBioViewProps) {
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 relative selection:bg-neutral-800 overflow-x-hidden flex flex-col justify-between">
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 relative selection:bg-neutral-800 overflow-x-hidden flex flex-col justify-between w-full">
       {/* Ambient background glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-indigo-500/10 blur-[120px] pointer-events-none rounded-full" />
-      <div className="absolute top-1/2 -right-48 w-[350px] h-[350px] bg-cyan-500/5 blur-[140px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-0 -left-48 w-[350px] h-[350px] bg-violet-500/5 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-indigo-500/10 blur-[120px] rounded-full" />
+        <div className="absolute top-1/2 -right-48 w-[350px] h-[350px] bg-cyan-500/5 blur-[140px] rounded-full" />
+        <div className="absolute bottom-0 -left-48 w-[350px] h-[350px] bg-violet-500/5 blur-[140px] rounded-full" />
+      </div>
 
       {/* Main Content Container */}
       <main className="w-full max-w-md mx-auto px-4 py-10 sm:py-14 flex-1 flex flex-col items-center relative z-10">
