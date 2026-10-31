@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "openlynk-postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@yawlabs/postgres-mcp"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/openlynk"
+      }
+    },
+    "openlynk-filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/thoth/openlynk/src",
+        "/home/thoth/openlynk/public"
+      ]
+    }
+  }
+}
