@@ -1,6 +1,21 @@
 import { z } from "zod";
 
 export const RESERVED_USERNAMES = new Set([
+  "_next",
+  "robots.txt",
+  "sitemap.xml",
+  "manifest.json",
+  "index",
+  "undefined",
+  "null",
+  "health",
+  "status",
+  "account",
+  "user",
+  "logout",
+  "signout",
+  "signin",
+  "signup",
   "api",
   "dashboard",
   "login",
@@ -26,6 +41,9 @@ export const RESERVED_USERNAMES = new Set([
   "support",
   "explore",
   "bio",
+  "feed",
+  "rss",
+  "assets",
 ]);
 
 export function isUsernameReserved(username: string): boolean {

@@ -6,10 +6,25 @@ interface BentoCardBlockProps {
   block: PageBlock;
 }
 
+function getSafeHref(url?: string): string {
+  if (!url) return "#";
+  const clean = url.trim();
+  const lower = clean.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return "#";
+  }
+  return clean;
+}
+
 export function BentoCardBlock({ block }: BentoCardBlockProps) {
   const config = (block.config ?? {}) as PageBlockConfig;
   const isSquare = block.colSpan === 1 && (block.rowSpan ?? 1) === 1;
   const isLarge = (block.colSpan ?? 1) >= 2 && (block.rowSpan ?? 1) >= 2;
+  const safeUrl = getSafeHref(block.url);
 
   const content = (
     <div
@@ -59,12 +74,12 @@ export function BentoCardBlock({ block }: BentoCardBlockProps) {
     </div>
   );
 
-  if (block.url && block.url !== "#") {
+  if (safeUrl && safeUrl !== "#") {
     return (
       <a
-        href={block.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={safeUrl}
+        target={safeUrl.startsWith("http") ? "_blank" : undefined}
+        rel={safeUrl.startsWith("http") ? "noopener noreferrer" : undefined}
         className="block w-full h-full"
       >
         {content}

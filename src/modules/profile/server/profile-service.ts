@@ -1,5 +1,7 @@
 "use server";
 
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { profiles, pages, type Profile } from "@/db/schema";
 import { eq, and, ne, sql } from "drizzle-orm";
@@ -9,6 +11,20 @@ import type { UpsertProfileInput } from "../types";
 export type ServiceResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
+
+/**
+ * Helper internal untuk memverifikasi autentikasi pengguna pemanggil server action
+ */
+async function getAuthenticatedUser() {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    return session?.user ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Get creator account profile by auth userId
@@ -35,6 +51,22 @@ export async function upsertProfile(
     return {
       success: false,
       error: parsed.error.issues[0]?.message ?? "Data profil tidak valid",
+    };
+  }
+
+  // Security Guard: Verifikasi identitas pemanggil
+  const currentUser = await getAuthenticatedUser();
+  if (!currentUser) {
+    return {
+      success: false,
+      error: "Tidak terautentikasi: Sesi login diperlukan.",
+    };
+  }
+
+  if (currentUser.id !== userId) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki izin untuk akun ini.",
     };
   }
 

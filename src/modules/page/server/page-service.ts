@@ -1,5 +1,7 @@
 "use server";
 
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import {
   pages,
@@ -25,6 +27,28 @@ import type {
 export type ServiceResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
+
+/**
+ * Security Guard: Memverifikasi bahwa pemanggil server action adalah pemilik sah dari profileId
+ */
+async function verifyProfileOwnership(profileId: string): Promise<boolean> {
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session?.user) return false;
+
+    const [profile] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(and(eq(profiles.id, profileId), eq(profiles.userId, session.user.id)))
+      .limit(1);
+
+    return !!profile;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Fetch public page, its creator profile, and active blocks by slug
@@ -114,6 +138,13 @@ export async function createPage(
   profileId: string,
   input: CreatePageInput
 ): Promise<ServiceResult<Page>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk akun profil ini.",
+    };
+  }
+
   const parsed = createPageSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -172,6 +203,13 @@ export async function updatePage(
   pageId: string,
   input: UpdatePageInput
 ): Promise<ServiceResult<Page>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk halaman ini.",
+    };
+  }
+
   const parsed = updatePageSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -251,6 +289,13 @@ export async function deletePage(
   profileId: string,
   pageId: string
 ): Promise<ServiceResult<{ id: string }>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk menghapus halaman ini.",
+    };
+  }
+
   const userPages = await db
     .select({ id: pages.id, isDefault: pages.isDefault })
     .from(pages)
@@ -293,6 +338,13 @@ export async function createPageBlock(
   pageId: string,
   input: CreatePageBlockInput
 ): Promise<ServiceResult<PageBlock>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk menambahkan blok pada halaman ini.",
+    };
+  }
+
   const [page] = await db
     .select({ id: pages.id })
     .from(pages)
@@ -349,6 +401,13 @@ export async function updatePageBlock(
   blockId: string,
   input: UpdatePageBlockInput
 ): Promise<ServiceResult<PageBlock>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk mengubah blok pada halaman ini.",
+    };
+  }
+
   const [page] = await db
     .select({ id: pages.id })
     .from(pages)
@@ -401,6 +460,13 @@ export async function deletePageBlock(
   pageId: string,
   blockId: string
 ): Promise<ServiceResult<{ id: string }>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk menghapus blok ini.",
+    };
+  }
+
   const [page] = await db
     .select({ id: pages.id })
     .from(pages)
@@ -433,6 +499,13 @@ export async function reorderPageBlocks(
   pageId: string,
   orderedBlockIds: string[]
 ): Promise<ServiceResult<boolean>> {
+  if (!(await verifyProfileOwnership(profileId))) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda tidak memiliki wewenang untuk mengubah urutan blok ini.",
+    };
+  }
+
   const [page] = await db
     .select({ id: pages.id })
     .from(pages)

@@ -5,12 +5,28 @@ interface LinkBlockProps {
   block: PageBlock;
 }
 
+function getSafeHref(url?: string): string {
+  if (!url) return "#";
+  const clean = url.trim();
+  const lower = clean.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return "#";
+  }
+  return clean;
+}
+
 export function LinkBlock({ block }: LinkBlockProps) {
+  const safeUrl = getSafeHref(block.url);
+
   return (
     <a
-      href={block.url}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={safeUrl}
+      target={safeUrl.startsWith("http") ? "_blank" : undefined}
+      rel={safeUrl.startsWith("http") ? "noopener noreferrer" : undefined}
       className="w-full min-h-[56px] px-4 py-3.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:bg-white/[0.12] border border-white/10 hover:border-white/20 backdrop-blur-xl shadow-lg transition-all duration-200 flex items-center justify-between gap-3 group active:scale-[0.99] select-none"
     >
       <div className="flex items-center gap-3.5 min-w-0">

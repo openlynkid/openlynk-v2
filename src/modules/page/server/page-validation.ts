@@ -1,6 +1,21 @@
 import { z } from "zod";
 
 export const RESERVED_PAGE_SLUGS = new Set([
+  "_next",
+  "robots.txt",
+  "sitemap.xml",
+  "manifest.json",
+  "index",
+  "undefined",
+  "null",
+  "health",
+  "status",
+  "account",
+  "user",
+  "logout",
+  "signout",
+  "signin",
+  "signup",
   "api",
   "dashboard",
   "login",
@@ -26,10 +41,32 @@ export const RESERVED_PAGE_SLUGS = new Set([
   "support",
   "explore",
   "bio",
+  "feed",
+  "rss",
+  "assets",
 ]);
 
 export function isPageSlugReserved(slug: string): boolean {
   return RESERVED_PAGE_SLUGS.has(slug.toLowerCase().trim());
+}
+
+/**
+ * Pola URL aman: hanya mengizinkan http://, https://, mailto:, tel:, path relatif (/...), atau hash (#).
+ * Mencegah eksekusi protokol berbahaya seperti javascript:, data:, vbscript:.
+ */
+export const SAFE_URL_REGEX = /^(https?:\/\/|mailto:|tel:|\/|#)/i;
+
+export function isSafeUrl(url: string): boolean {
+  if (!url) return false;
+  const clean = url.trim().toLowerCase();
+  if (
+    clean.startsWith("javascript:") ||
+    clean.startsWith("data:") ||
+    clean.startsWith("vbscript:")
+  ) {
+    return false;
+  }
+  return SAFE_URL_REGEX.test(clean);
 }
 
 const SLUG_REGEX = /^[a-z0-9][a-z0-9_-]{1,28}[a-z0-9]$/;
@@ -113,7 +150,11 @@ export const pageBlockSchema = z.object({
   url: z
     .string()
     .trim()
-    .min(1, "URL wajib diisi"),
+    .min(1, "URL wajib diisi")
+    .refine((val) => isSafeUrl(val), {
+      message:
+        "Protokol URL tidak aman (hanya diizinkan http://, https://, mailto:, tel:, atau #)",
+    }),
   iconName: z.string().trim().optional(),
   colSpan: z.number().int().min(1).max(2).optional().default(1),
   rowSpan: z.number().int().min(1).max(2).optional().default(1),
