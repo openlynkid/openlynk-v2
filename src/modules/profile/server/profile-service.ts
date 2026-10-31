@@ -72,6 +72,12 @@ export async function upsertProfile(
 
   const { username, displayName, bio, avatarUrl, socialLinks } = parsed.data;
 
+  const [currentProfile] = await db
+    .select()
+    .from(profiles)
+    .where(eq(profiles.userId, userId))
+    .limit(1);
+
   // Check username collision with other profiles
   const [existingUserWithSlug] = await db
     .select({ id: profiles.id })
@@ -91,11 +97,21 @@ export async function upsertProfile(
     };
   }
 
-  const [currentProfile] = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.userId, userId))
+  // Cross-namespace collision: Pastikan username tidak dipakai sebagai slug halaman oleh akun lain
+  const [existingPageWithSlug] = await db
+    .select({ id: pages.id, profileId: pages.profileId })
+    .from(pages)
+    .where(sql`lower(${pages.slug}) = ${username}`)
     .limit(1);
+
+  if (existingPageWithSlug) {
+    if (!currentProfile || existingPageWithSlug.profileId !== currentProfile.id) {
+      return {
+        success: false,
+        error: `Username "${username}" tidak dapat digunakan karena sudah dipakai sebagai slug halaman oleh akun lain.`,
+      };
+    }
+  }
 
   if (currentProfile) {
     const [updated] = await db

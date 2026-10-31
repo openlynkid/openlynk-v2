@@ -137,6 +137,33 @@ export const updatePageSchema = z.object({
   isPublished: z.boolean().optional(),
 });
 
+export const blockConfigSchema = z
+  .object({
+    embedType: z.enum(["youtube", "spotify"]).optional(),
+    embedId: z
+      .string()
+      .trim()
+      .regex(
+        /^[a-zA-Z0-9_-]*$/,
+        "Embed ID hanya boleh alfanumerik, minus, atau underscore"
+      )
+      .max(100, "Embed ID maksimal 100 karakter")
+      .optional(),
+    subtitle: z
+      .string()
+      .trim()
+      .max(160, "Subjudul maksimal 160 karakter")
+      .optional(),
+    badgeText: z
+      .string()
+      .trim()
+      .max(30, "Teks lencana maksimal 30 karakter")
+      .optional(),
+    accentGlow: z.string().trim().max(50).optional(),
+  })
+  .optional()
+  .default({});
+
 export const pageBlockSchema = z.object({
   type: z
     .enum(["link", "bento_card", "social_row", "header_text", "media_embed"])
@@ -158,14 +185,38 @@ export const pageBlockSchema = z.object({
   iconName: z.string().trim().optional(),
   colSpan: z.number().int().min(1).max(2).optional().default(1),
   rowSpan: z.number().int().min(1).max(2).optional().default(1),
-  config: z
-    .object({
-      embedType: z.enum(["youtube", "spotify"]).optional(),
-      embedId: z.string().trim().optional(),
-      subtitle: z.string().trim().max(160).optional(),
-      badgeText: z.string().trim().max(30).optional(),
-      accentGlow: z.string().trim().optional(),
-    })
-    .optional()
-    .default({}),
+  config: blockConfigSchema,
 });
+
+export const updatePageBlockSchema = z.object({
+  type: z
+    .enum(["link", "bento_card", "social_row", "header_text", "media_embed"])
+    .optional(),
+  title: z
+    .string()
+    .trim()
+    .min(1, "Judul blok wajib diisi")
+    .max(80, "Judul blok maksimal 80 karakter")
+    .optional(),
+  url: z
+    .string()
+    .trim()
+    .min(1, "URL wajib diisi")
+    .refine((val) => isSafeUrl(val), {
+      message:
+        "Protokol URL tidak aman (hanya diizinkan http://, https://, mailto:, tel:, atau #)",
+    })
+    .optional(),
+  iconName: z.string().trim().max(60).optional(),
+  colSpan: z.number().int().min(1).max(2).optional(),
+  rowSpan: z.number().int().min(1).max(2).optional(),
+  config: blockConfigSchema,
+  isActive: z.boolean().optional(),
+});
+
+export const reorderBlocksSchema = z
+  .array(z.string().uuid("ID blok harus berformat UUID yang valid"))
+  .max(100, "Maksimal 100 blok dalam satu permintaan penataan urutan")
+  .refine((items) => new Set(items).size === items.length, {
+    message: "Daftar ID blok tidak boleh mengandung duplikasi",
+  });

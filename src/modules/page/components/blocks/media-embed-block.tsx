@@ -7,6 +7,27 @@ interface MediaEmbedBlockProps {
   block: PageBlock;
 }
 
+function getSafeHref(url?: string): string {
+  if (!url) return "#";
+  const clean = url.trim();
+  const lower = clean.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return "#";
+  }
+  return clean;
+}
+
+function getSafeEmbedId(id?: string): string | null {
+  if (!id) return null;
+  const clean = id.trim();
+  if (!/^[a-zA-Z0-9_-]+$/.test(clean)) return null;
+  return clean;
+}
+
 export function MediaEmbedBlock({ block }: MediaEmbedBlockProps) {
   const config = (block.config ?? {}) as PageBlockConfig;
   const detected = detectMediaEmbed(block.url);
@@ -17,7 +38,9 @@ export function MediaEmbedBlock({ block }: MediaEmbedBlockProps) {
     config.embedType === "youtube" ||
     config.embedId
   ) {
-    const videoId = detected?.platform === "youtube" ? detected.videoId : config.embedId;
+    const rawVideoId =
+      detected?.platform === "youtube" ? detected.videoId : config.embedId;
+    const videoId = getSafeEmbedId(rawVideoId);
 
     if (videoId) {
       return (
@@ -61,11 +84,12 @@ export function MediaEmbedBlock({ block }: MediaEmbedBlockProps) {
     detected?.platform === "spotify" ||
     config.embedType === "spotify"
   ) {
+    const safeSpotifyId = getSafeEmbedId(config.embedId);
     const embedUrl =
       detected?.platform === "spotify"
         ? detected.embedUrl
-        : config.embedId
-          ? `https://open.spotify.com/embed/track/${config.embedId}`
+        : safeSpotifyId
+          ? `https://open.spotify.com/embed/track/${safeSpotifyId}`
           : null;
 
     if (embedUrl) {
@@ -91,11 +115,12 @@ export function MediaEmbedBlock({ block }: MediaEmbedBlockProps) {
   }
 
   // Fallback if URL is not a recognized media embed
+  const safeFallbackUrl = getSafeHref(block.url);
   return (
     <a
-      href={block.url}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={safeFallbackUrl}
+      target={safeFallbackUrl.startsWith("http") ? "_blank" : undefined}
+      rel={safeFallbackUrl.startsWith("http") ? "noopener noreferrer" : undefined}
       className="w-full min-h-[56px] px-4 py-3.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] active:bg-white/[0.12] border border-white/10 hover:border-white/20 backdrop-blur-xl shadow-lg transition-all duration-200 flex items-center justify-between gap-3 group select-none"
     >
       <div className="flex items-center gap-3.5 min-w-0">
@@ -104,7 +129,7 @@ export function MediaEmbedBlock({ block }: MediaEmbedBlockProps) {
         </div>
         <div className="min-w-0">
           <p className="font-medium text-sm text-neutral-200 truncate">{block.title}</p>
-          <p className="text-xs text-neutral-500 truncate">{block.url}</p>
+          <p className="text-xs text-neutral-500 truncate">{safeFallbackUrl}</p>
         </div>
       </div>
       <div className="size-8 rounded-lg flex items-center justify-center text-neutral-500 group-hover:text-neutral-200 transition">

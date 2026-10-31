@@ -15,6 +15,8 @@ import {
   createPageSchema,
   updatePageSchema,
   pageBlockSchema,
+  updatePageBlockSchema,
+  reorderBlocksSchema,
 } from "./page-validation";
 import type {
   PublicPageData,
@@ -52,12 +54,20 @@ async function verifyProfileOwnership(profileId: string): Promise<boolean> {
 
 /**
  * Fetch public page, its creator profile, and active blocks by slug
+ * Mendukung pencarian via slug halaman maupun handle username akun (cth: "portofolio", "@thoth", "thoth")
  */
 export async function getPageBySlug(
   slug: string
 ): Promise<PublicPageData | null> {
-  const cleanSlug = slug.trim().toLowerCase();
+  let cleanSlug = slug.trim().toLowerCase();
+  try {
+    cleanSlug = decodeURIComponent(slug).trim().toLowerCase();
+  } catch {
+    // fallback ke slug asli jika URI malformed
+  }
+  cleanSlug = cleanSlug.replace(/^@/, "");
 
+  // 1. Prioritas Utama: Cari halaman dengan kecocokan slug halaman eksak
   const [page] = await db
     .select()
     .from(pages)
@@ -69,29 +79,72 @@ export async function getPageBySlug(
     )
     .limit(1);
 
-  if (!page) return null;
+  if (page) {
+    const [profile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, page.profileId))
+      .limit(1);
 
-  const [profile] = await db
+    if (profile) {
+      const blocks = await db
+        .select()
+        .from(pageBlocks)
+        .where(
+          and(eq(pageBlocks.pageId, page.id), eq(pageBlocks.isActive, true))
+        )
+        .orderBy(asc(pageBlocks.sortOrder));
+
+      return {
+        ...page,
+        profile,
+        blocks,
+      };
+    }
+  }
+
+  // 2. Fallback: Jika slug halaman tidak ditemukan, cari apakah cleanSlug adalah username akun profil
+  const [profileByUsername] = await db
     .select()
     .from(profiles)
-    .where(eq(profiles.id, page.profileId))
+    .where(sql`lower(${profiles.username}) = ${cleanSlug}`)
     .limit(1);
 
-  if (!profile) return null;
+  if (profileByUsername) {
+    // Ambil halaman utama (isDefault = true) atau halaman terbitan pertama milik kreator
+    const [defaultPage] = await db
+      .select()
+      .from(pages)
+      .where(
+        and(
+          eq(pages.profileId, profileByUsername.id),
+          eq(pages.isPublished, true)
+        )
+      )
+      .orderBy(sql`${pages.isDefault} DESC`, sql`${pages.createdAt} ASC`)
+      .limit(1);
 
-  const blocks = await db
-    .select()
-    .from(pageBlocks)
-    .where(
-      and(eq(pageBlocks.pageId, page.id), eq(pageBlocks.isActive, true))
-    )
-    .orderBy(asc(pageBlocks.sortOrder));
+    if (defaultPage) {
+      const blocks = await db
+        .select()
+        .from(pageBlocks)
+        .where(
+          and(
+            eq(pageBlocks.pageId, defaultPage.id),
+            eq(pageBlocks.isActive, true)
+          )
+        )
+        .orderBy(asc(pageBlocks.sortOrder));
 
-  return {
-    ...page,
-    profile,
-    blocks,
-  };
+      return {
+        ...defaultPage,
+        profile: profileByUsername,
+        blocks,
+      };
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -166,6 +219,25 @@ export async function createPage(
     return {
       success: false,
       error: `Slug URL "${slug}" sudah digunakan. Silakan pilih slug lain.`,
+    };
+  }
+
+  // Cross-namespace guard: Pastikan slug tidak digunakan sebagai username akun profil lain
+  const [profileCollision] = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(
+      and(
+        sql`lower(${profiles.username}) = ${slug}`,
+        ne(profiles.id, profileId)
+      )
+    )
+    .limit(1);
+
+  if (profileCollision) {
+    return {
+      success: false,
+      error: `Slug URL "${slug}" tidak dapat digunakan karena merupakan username terdaftar akun lain.`,
     };
   }
 
@@ -250,6 +322,25 @@ export async function updatePage(
       return {
         success: false,
         error: `Slug URL "${slug}" sudah digunakan. Silakan pilih slug lain.`,
+      };
+    }
+
+    // Cross-namespace guard: Pastikan slug baru tidak digunakan sebagai username akun profil lain
+    const [profileCollision] = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(
+        and(
+          sql`lower(${profiles.username}) = ${slug}`,
+          ne(profiles.id, profileId)
+        )
+      )
+      .limit(1);
+
+    if (profileCollision) {
+      return {
+        success: false,
+        error: `Slug URL "${slug}" tidak dapat digunakan karena merupakan username terdaftar akun lain.`,
       };
     }
   }
@@ -430,18 +521,27 @@ export async function updatePageBlock(
     return { success: false, error: "Tautan tidak ditemukan" };
   }
 
+  const parsed = updatePageBlockSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Data tautan tidak valid",
+    };
+  }
+
+  const valid = parsed.data;
   const updateData: Partial<PageBlock> = {
     updatedAt: new Date(),
   };
 
-  if (input.type !== undefined) updateData.type = input.type;
-  if (input.title !== undefined) updateData.title = input.title.trim();
-  if (input.url !== undefined) updateData.url = input.url.trim();
-  if (input.iconName !== undefined) updateData.iconName = input.iconName;
-  if (input.colSpan !== undefined) updateData.colSpan = input.colSpan;
-  if (input.rowSpan !== undefined) updateData.rowSpan = input.rowSpan;
-  if (input.config !== undefined) updateData.config = input.config;
-  if (input.isActive !== undefined) updateData.isActive = input.isActive;
+  if (valid.type !== undefined) updateData.type = valid.type;
+  if (valid.title !== undefined) updateData.title = valid.title;
+  if (valid.url !== undefined) updateData.url = valid.url;
+  if (valid.iconName !== undefined) updateData.iconName = valid.iconName ? valid.iconName : null;
+  if (valid.colSpan !== undefined) updateData.colSpan = valid.colSpan;
+  if (valid.rowSpan !== undefined) updateData.rowSpan = valid.rowSpan;
+  if (valid.config !== undefined) updateData.config = valid.config;
+  if (valid.isActive !== undefined) updateData.isActive = valid.isActive;
 
   const [updated] = await db
     .update(pageBlocks)
@@ -516,8 +616,16 @@ export async function reorderPageBlocks(
     return { success: false, error: "Halaman tidak ditemukan" };
   }
 
-  for (let i = 0; i < orderedBlockIds.length; i++) {
-    const blockId = orderedBlockIds[i];
+  const parsed = reorderBlocksSchema.safeParse(orderedBlockIds);
+  if (!parsed.success) {
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Daftar ID blok tidak valid",
+    };
+  }
+
+  for (let i = 0; i < parsed.data.length; i++) {
+    const blockId = parsed.data[i];
     await db
       .update(pageBlocks)
       .set({ sortOrder: i, updatedAt: new Date() })
