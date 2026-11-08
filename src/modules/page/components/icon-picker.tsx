@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { RuneIcon } from "runeicons-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { RuneIcon, resolveIconName } from "@/components/ui/rune-icon";
 
 export interface CuratedIcon {
   name: string;
@@ -10,29 +11,37 @@ export interface CuratedIcon {
 }
 
 export const CURATED_ICONS: CuratedIcon[] = [
-  // Popular
-  { name: "glass-sparkle", label: "Sparkle", category: "popular" },
-  { name: "glass-star", label: "Bintang", category: "popular" },
-  { name: "glass-badge-check", label: "Verified", category: "popular" },
-  { name: "glass-chain-link-3-1", label: "Tautan", category: "popular" },
+  // Populer
+  { name: "glass-sparkle-3-2", label: "Kilau / Populer", category: "popular" },
+  { name: "glass-star-4", label: "Bintang Unggulan", category: "popular" },
+  { name: "glass-shield-check-1", label: "Terverifikasi", category: "popular" },
+  { name: "glass-chain-link-3-1", label: "Tautan Web", category: "popular" },
+  { name: "glass-zap-2", label: "Kilat / Cepat", category: "popular" },
+  { name: "glass-heart-2-2", label: "Favorit / Suka", category: "popular" },
 
-  // Media
-  { name: "glass-video-recorder", label: "Video Player", category: "media" },
-  { name: "glass-video", label: "Kamera Video", category: "media" },
-  { name: "glass-camera", label: "Foto", category: "media" },
-  { name: "glass-music", label: "Musik", category: "media" },
+  // Media & Kreatif
+  { name: "glass-video-2", label: "Video", category: "media" },
+  { name: "glass-camera-1-2", label: "Kamera / Foto", category: "media" },
+  { name: "glass-volume-full-2", label: "Audio / Musik", category: "media" },
+  { name: "glass-images-sparkle-2", label: "Galeri Foto", category: "media" },
+  { name: "glass-play-2", label: "Pemutar Media", category: "media" },
 
-  // Social / Communication
-  { name: "glass-message", label: "Pesan", category: "social" },
-  { name: "glass-mail", label: "Email", category: "social" },
-  { name: "glass-phone", label: "Telepon", category: "social" },
-  { name: "glass-user", label: "Profil", category: "social" },
+  // Komunikasi & Sosial
+  { name: "glass-bubble-2", label: "Pesan Chat", category: "social" },
+  { name: "glass-email", label: "Email", category: "social" },
+  { name: "glass-telephone", label: "Telepon", category: "social" },
+  { name: "glass-circle-person", label: "Profil Kreator", category: "social" },
+  { name: "glass-whatsapp", label: "WhatsApp", category: "social" },
 
-  // Business / Tools
-  { name: "glass-shopping-bag", label: "Belanja", category: "business" },
-  { name: "glass-code", label: "Coding", category: "business" },
-  { name: "glass-book", label: "Buku / Catatan", category: "business" },
-  { name: "glass-lock-1", label: "Privat / Kunci", category: "business" },
+  // Bisnis, Portofolio & Alat
+  { name: "glass-shopping-bag", label: "Toko / Belanja", category: "business" },
+  { name: "glass-code", label: "Coding / Proyek", category: "business" },
+  { name: "glass-file-text", label: "Dokumen / Artikel", category: "business" },
+  { name: "glass-wallet-1", label: "Dompet / Donasi", category: "business" },
+  { name: "glass-credit-card", label: "Pembayaran", category: "business" },
+  { name: "glass-lock-1", label: "Akses Eksklusif", category: "business" },
+  { name: "glass-earth-2", label: "Global / Website", category: "business" },
+  { name: "glass-gift", label: "Hadiah / Giveaway", category: "business" },
 ];
 
 interface IconPickerProps {
@@ -42,13 +51,13 @@ interface IconPickerProps {
 
 export function IconPicker({ selectedIcon, onSelectIcon }: IconPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const activeIcon = selectedIcon || "glass-sparkle";
+  const activeIcon = resolveIconName(selectedIcon);
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-neutral-300">
-          Ikon Blok (Runeicon Glass):
+          Ikon Blok (Glass Icon):
         </label>
         <button
           type="button"
@@ -79,8 +88,8 @@ export function IconPicker({ selectedIcon, onSelectIcon }: IconPickerProps) {
           </div>
         </div>
 
-        <span className="text-xs text-neutral-400 px-2 py-1 rounded-lg bg-white/5 border border-white/5">
-          {isOpen ? "▲" : "▼"}
+        <span className="text-xs text-neutral-400 p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center">
+          {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </span>
       </button>
 
@@ -99,13 +108,13 @@ export function IconPicker({ selectedIcon, onSelectIcon }: IconPickerProps) {
                     onSelectIcon(icon.name);
                     setIsOpen(false);
                   }}
-                  className={`size-10 rounded-xl border flex items-center justify-center transition ${
+                  className={`size-11 rounded-xl flex items-center justify-center p-1.5 transition ${
                     isSelected
-                      ? "bg-indigo-600/30 border-indigo-500 text-white shadow-lg ring-2 ring-indigo-500/20"
-                      : "bg-white/[0.03] border-white/10 text-neutral-400 hover:bg-white/[0.08] hover:text-white"
+                      ? "bg-indigo-600/30 border-2 border-indigo-500 scale-105"
+                      : "bg-white/[0.04] border border-white/10 hover:border-white/25 hover:bg-white/[0.08]"
                   }`}
                 >
-                  <RuneIcon name={icon.name} type="glass" size={18} />
+                  <RuneIcon name={icon.name} type="glass" size={22} />
                 </button>
               );
             })}

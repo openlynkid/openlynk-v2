@@ -1,6 +1,6 @@
 "use client";
 
-import { RuneIcon } from "runeicons-react";
+import { Sparkles } from "lucide-react";
 import { THEME_PRESETS, type ThemePresetId } from "../types/themes";
 
 interface ThemeSelectorProps {
@@ -19,7 +19,7 @@ export function ThemeSelector({
       <div className="flex items-center justify-between">
         <div>
           <label className="block text-xs font-semibold text-white tracking-tight flex items-center gap-1.5">
-            <RuneIcon name="glass-sparkle" type="glass" size={16} />
+            <Sparkles size={16} />
             <span>Tema Visual Halaman</span>
           </label>
           <p className="text-[11px] text-neutral-400 mt-0.5">

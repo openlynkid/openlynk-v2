@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ImageKitProvider } from "@imagekit/next";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,7 +27,7 @@ export default function RootLayout({
     <html lang="id" className={`${inter.variable} dark font-sans h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground overflow-x-clip w-full max-w-full">
         <ImageKitProvider urlEndpoint={imagekitUrlEndpoint}>
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </ImageKitProvider>
       </body>
     </html>

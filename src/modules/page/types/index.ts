@@ -43,6 +43,21 @@ export type PageBlockConfig = {
   subtitle?: string;
   badgeText?: string;
   accentGlow?: string;
+  variant?: "standard" | "note" | "image" | "map" | "github";
+  // Note Card
+  noteContent?: string;
+  // Image Card
+  imageUrl?: string;
+  imageAlt?: string;
+  // Map / Location Card
+  locationName?: string;
+  timezone?: string;
+  // GitHub Card
+  repoName?: string;
+  repoStars?: number;
+  repoLanguage?: string;
+  // Social Row
+  socialLinks?: Record<string, string>;
 };
 
 export type CreatePageBlockInput = {

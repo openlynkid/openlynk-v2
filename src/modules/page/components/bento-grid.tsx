@@ -3,10 +3,18 @@ import { PageCard } from "./page-card";
 
 interface BentoGridProps {
   blocks: PageBlock[];
+  isStudio?: boolean;
 }
 
 export function getBentoBlockSpan(block: PageBlock): string {
   if (block.type === "header_text") {
+    return "col-span-2 sm:col-span-4";
+  }
+
+  if (block.type === "social_row") {
+    if (block.colSpan === 1) {
+      return "col-span-2 sm:col-span-2";
+    }
     return "col-span-2 sm:col-span-4";
   }
 
@@ -40,19 +48,19 @@ export function getBentoBlockSpan(block: PageBlock): string {
   return "col-span-1 sm:col-span-1";
 }
 
-export function BentoGrid({ blocks }: BentoGridProps) {
+export function BentoGrid({ blocks, isStudio = false }: BentoGridProps) {
   if (!blocks || blocks.length === 0) {
     return null;
   }
 
   return (
-    <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 auto-rows-auto">
+    <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 auto-rows-auto grid-flow-dense">
       {blocks.map((block) => (
         <div
           key={block.id}
           className={`${getBentoBlockSpan(block)} transition-all duration-300 min-w-0`}
         >
-          <PageCard block={block} />
+          <PageCard block={block} isStudio={isStudio} />
         </div>
       ))}
     </div>

@@ -1,12 +1,13 @@
 "use client";
 
-import { RuneIcon } from "runeicons-react";
+import { Pencil, Plus, GripVertical } from "lucide-react";
 import type { Page, PageBlock, Profile } from "@/db/schema";
 import { getThemePreset } from "../../types/themes";
 import { PageHeader } from "../page-header";
-import { PageCard } from "../page-card";
-import { getBentoBlockSpan } from "../bento-grid";
 import type { ViewportMode } from "./studio-header";
+import { useBentoDnd } from "./hooks/use-bento-dnd";
+import { StudioGridItem } from "./studio-grid-item";
+import { StudioGhostCard } from "./studio-ghost-card";
 
 interface StudioCanvasProps {
   page: Page;
@@ -17,7 +18,9 @@ interface StudioCanvasProps {
   onSelectBlock: (block: PageBlock) => void;
   onQuickResize: (blockId: string, colSpan: number, rowSpan: number) => void;
   onQuickMove: (blockId: string, direction: "up" | "down") => void;
-  onQuickDelete: (blockId: string) => void;
+  onDuplicateBlock?: (block: PageBlock) => void;
+  onRequestDeleteBlock: (block: PageBlock) => void;
+  onReorderBlocks: (newBlocks: PageBlock[]) => void;
   onOpenAddBlock: () => void;
   onOpenPageSettings: () => void;
 }
@@ -31,11 +34,34 @@ export function StudioCanvas({
   onSelectBlock,
   onQuickResize,
   onQuickMove,
-  onQuickDelete,
+  onDuplicateBlock,
+  onRequestDeleteBlock,
+  onReorderBlocks,
   onOpenAddBlock,
   onOpenPageSettings,
 }: StudioCanvasProps) {
   const preset = getThemePreset(page.themeConfig?.themePreset);
+
+  const {
+    draggedBlock,
+    displayBlocks,
+    cursorPos,
+    dragOffset,
+    ghostSize,
+    scrollContainerRef,
+    addBlockPlaceholderRef,
+    registerBlockElement,
+    handlePointerDown,
+    handleCardPointerMove,
+    handleCardPointerUp,
+    handleCardPointerCancel,
+    wasJustDragged,
+    isDraggingAtEnd,
+  } = useBentoDnd({
+    blocks,
+    onReorderBlocks,
+    onSelectBlock,
+  });
 
   const getFrameWidthClass = () => {
     switch (viewportMode) {
@@ -50,7 +76,12 @@ export function StudioCanvas({
   };
 
   return (
-    <div className="flex-1 w-full min-h-[calc(100vh-4rem)] bg-neutral-950 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:24px_24px] p-4 sm:p-8 flex justify-center items-start overflow-y-auto relative">
+    <div
+      ref={scrollContainerRef}
+      className={`flex-1 min-h-0 w-full bg-neutral-950 bg-[radial-gradient(rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:24px_24px] p-4 sm:p-8 flex justify-center items-start overflow-y-auto relative ${
+        draggedBlock ? "touch-none" : "touch-pan-y"
+      }`}
+    >
       {/* Centered Device / Viewport Frame */}
       <div
         className={`${getFrameWidthClass()} bg-neutral-950/95 backdrop-blur-2xl transition-all duration-300 relative overflow-hidden flex flex-col justify-between my-4 select-none min-h-[700px]`}
@@ -83,163 +114,90 @@ export function StudioCanvas({
           >
             <div className="flex justify-end pr-2 -mb-4 opacity-0 group-hover:opacity-100 transition">
               <span className="text-[10px] text-neutral-400 bg-neutral-900 border border-white/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                <RuneIcon name="glass-edit-pen" type="glass" size={10} />
+                <Pencil size={10} />
                 <span>Edit Header</span>
               </span>
             </div>
-            <PageHeader page={page} profile={profile} />
+            <PageHeader page={page} profile={profile} isStudio />
           </div>
 
           {/* Bento Grid Canvas */}
           <div className="w-full mt-6">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 auto-rows-auto w-full">
-              {blocks.map((block, index) => {
-                const isSelected = selectedBlockId === block.id;
-                const spanClass = getBentoBlockSpan(block);
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                <span>Blok Konten</span>
+                <span className="text-[10px] text-neutral-500 font-normal">
+                  ({blocks.length} item)
+                </span>
+              </span>
+              <span className="text-[10px] text-neutral-400 flex items-center gap-1.5 bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/5">
+                <GripVertical size={11} className="text-indigo-400" />
+                <span>Tarik ikon pegangan atau geser kartu untuk memindahkan</span>
+              </span>
+            </div>
 
-                return (
-                  <div
-                    key={block.id}
-                    className={`${spanClass} relative group transition-all duration-200 min-w-0`}
-                  >
-                    {/* Block Card Container */}
-                    <div
-                      onClick={() => onSelectBlock(block)}
-                      className={`w-full h-full cursor-pointer rounded-2xl transition-all duration-200 relative ${
-                        isSelected
-                          ? "ring-2 ring-indigo-500 shadow-indigo-500/20 shadow-xl scale-[1.01]"
-                          : "hover:ring-1 hover:ring-white/30"
-                      } ${!block.isActive ? "opacity-50 grayscale-[40%]" : ""}`}
-                    >
-                      <PageCard block={block} />
-                    </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 auto-rows-auto grid-flow-dense w-full relative">
+              {displayBlocks.length === 0 && (
+                <div className="col-span-2 sm:col-span-4 p-8 rounded-2xl bg-white/[0.02] border border-white/5 text-center text-neutral-400 text-xs sm:text-sm">
+                  <p className="font-semibold text-neutral-200">Halaman ini belum memiliki kartu bento.</p>
+                  <p className="text-[11px] text-neutral-500 mt-1">
+                    Gunakan tombol di bawah untuk menambahkan tautan, gambar, peta, catatan, atau kartu bento pertama Anda.
+                  </p>
+                </div>
+              )}
 
-                    {/* Contextual Floating Toolbar on Hover */}
-                    <div className="absolute -top-3.5 right-2 opacity-0 group-hover:opacity-100 transition-all duration-150 z-20 flex items-center gap-1 bg-neutral-900/95 border border-white/20 p-1 rounded-xl shadow-2xl backdrop-blur-md">
-                      {/* Quick Resize if bento_card */}
-                      {block.type === "bento_card" && (
-                        <div className="flex items-center gap-0.5 border-r border-white/10 pr-1 mr-0.5">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onQuickResize(block.id, 1, 1);
-                            }}
-                            title="Ubah ke 1x1 Kotak"
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition ${
-                              block.colSpan === 1 && block.rowSpan === 1
-                                ? "bg-indigo-600 text-white"
-                                : "text-neutral-400 hover:text-white"
-                            }`}
-                          >
-                            1x1
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onQuickResize(block.id, 2, 1);
-                            }}
-                            title="Ubah ke 2x1 Lebar"
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition ${
-                              block.colSpan === 2 && block.rowSpan === 1
-                                ? "bg-indigo-600 text-white"
-                                : "text-neutral-400 hover:text-white"
-                            }`}
-                          >
-                            2x1
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onQuickResize(block.id, 2, 2);
-                            }}
-                            title="Ubah ke 2x2 Besar"
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition ${
-                              block.colSpan === 2 && block.rowSpan === 2
-                                ? "bg-indigo-600 text-white"
-                                : "text-neutral-400 hover:text-white"
-                            }`}
-                          >
-                            2x2
-                          </button>
-                        </div>
-                      )}
+              {displayBlocks.map((block, index) => (
+                <StudioGridItem
+                  key={block.id}
+                  block={block}
+                  index={index}
+                  totalBlocks={displayBlocks.length}
+                  isSelected={selectedBlockId === block.id}
+                  isBeingDragged={draggedBlock?.id === block.id}
+                  isAnyDragging={draggedBlock !== null}
+                  onRegisterRef={(el) => registerBlockElement(block.id, el)}
+                  onPointerDown={handlePointerDown}
+                  onCardPointerMove={handleCardPointerMove}
+                  onCardPointerUp={handleCardPointerUp}
+                  onCardPointerCancel={handleCardPointerCancel}
+                  wasJustDragged={wasJustDragged}
+                  onSelectBlock={onSelectBlock}
+                  onQuickResize={onQuickResize}
+                  onQuickMove={onQuickMove}
+                  onDuplicateBlock={onDuplicateBlock}
+                  onRequestDelete={onRequestDeleteBlock}
+                />
+              ))}
 
-                      {/* Move Up / Down */}
-                      <button
-                        type="button"
-                        disabled={index === 0}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onQuickMove(block.id, "up");
-                        }}
-                        title="Geser ke Atas"
-                        className="size-6 rounded flex items-center justify-center text-neutral-400 hover:text-white disabled:opacity-20 transition"
-                      >
-                        ▲
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled={index === blocks.length - 1}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onQuickMove(block.id, "down");
-                        }}
-                        title="Geser ke Bawah"
-                        className="size-6 rounded flex items-center justify-center text-neutral-400 hover:text-white disabled:opacity-20 transition"
-                      >
-                        ▼
-                      </button>
-
-                      {/* Edit Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectBlock(block);
-                        }}
-                        title="Edit Properti Blok"
-                        className="size-6 rounded flex items-center justify-center text-indigo-400 hover:text-indigo-300 transition"
-                      >
-                        <RuneIcon name="glass-edit-pen" type="glass" size={12} />
-                      </button>
-
-                      {/* Delete Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm("Hapus blok ini dari kanvas?")) {
-                            onQuickDelete(block.id);
-                          }
-                        }}
-                        title="Hapus Blok"
-                        className="size-6 rounded flex items-center justify-center text-red-400 hover:text-red-300 transition"
-                      >
-                        <RuneIcon name="glass-trash" type="glass" size={12} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Add Block Placeholder Button (Takes 2 or 4 cols) */}
+              {/* Add Block Placeholder Button / Drop Zone (Takes 2 or 4 cols) */}
               <div
+                ref={addBlockPlaceholderRef}
                 onClick={onOpenAddBlock}
-                className="col-span-2 sm:col-span-4 min-h-[72px] rounded-2xl border-2 border-dashed border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer text-neutral-400 hover:text-white p-4"
+                className={`col-span-2 sm:col-span-4 min-h-[72px] rounded-2xl sm:rounded-3xl border-2 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer p-4 ${
+                  isDraggingAtEnd
+                    ? "border-indigo-400 bg-indigo-500/20 ring-2 ring-indigo-500/50 text-indigo-300 scale-[1.01]"
+                    : "border-dashed border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/5 text-neutral-400 hover:text-white"
+                }`}
               >
-                <div className="size-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                  <RuneIcon name="glass-plus" type="glass" size={16} />
+                <div
+                  className={`size-8 rounded-lg flex items-center justify-center border transition ${
+                    isDraggingAtEnd
+                      ? "bg-indigo-600 text-white border-indigo-400"
+                      : "bg-white/5 border border-white/10"
+                  }`}
+                >
+                  <Plus size={16} />
                 </div>
                 <div className="text-left">
                   <span className="text-xs font-semibold block text-neutral-200">
-                    + Tambah Blok Konten Baru
+                    {isDraggingAtEnd
+                      ? "Lepas di sini untuk memindahkan blok ke posisi akhir"
+                      : "+ Tambah Blok Konten Baru"}
                   </span>
                   <span className="text-[10px] text-neutral-500">
-                    Sematkan tautan, kartu bento, video YouTube, atau musik Spotify
+                    {isDraggingAtEnd
+                      ? "Blok akan diletakkan di bagian paling bawah halaman"
+                      : "Sematkan tautan, kartu bento, video YouTube, atau musik Spotify"}
                   </span>
                 </div>
               </div>
@@ -255,6 +213,16 @@ export function StudioCanvas({
           </span>
         </div>
       </div>
+
+      {/* Floating Ghost Card during drag */}
+      {draggedBlock && (
+        <StudioGhostCard
+          block={draggedBlock}
+          cursorPos={cursorPos}
+          dragOffset={dragOffset}
+          ghostSize={ghostSize}
+        />
+      )}
     </div>
   );
 }

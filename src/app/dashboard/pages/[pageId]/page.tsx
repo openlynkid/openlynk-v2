@@ -19,9 +19,14 @@ export const metadata: Metadata = {
 
 async function PageStudioContent({ params }: PageEditorProps) {
   const { pageId } = await params;
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  let session = null;
+  try {
+    session = await auth.api.getSession({
+      headers: await headers(),
+    });
+  } catch {
+    session = null;
+  }
 
   if (!session) {
     redirect("/login");
@@ -51,7 +56,7 @@ export default function PageEditorPage(props: PageEditorProps) {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center">
+        <div className="h-screen w-full bg-neutral-950 text-neutral-100 flex items-center justify-center">
           <div className="size-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
         </div>
       }

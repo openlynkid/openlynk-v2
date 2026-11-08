@@ -3,8 +3,17 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import QRCode from "qrcode";
-import { RuneIcon } from "runeicons-react";
+import { Send } from "lucide-react";
+import { RuneIcon } from "@/components/ui/rune-icon";
+import { SocialIcon } from "@/components/ui/social-icon";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface PageShareModalProps {
   isOpen: boolean;
@@ -37,8 +46,6 @@ export function PageShareModal({
     }
   }, [isOpen, url]);
 
-  if (!isOpen) return null;
-
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(url);
@@ -62,32 +69,20 @@ export function PageShareModal({
   )}&text=${encodeURIComponent(title)}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div
-        className="w-full max-w-sm rounded-3xl bg-neutral-900/90 border border-white/15 p-6 shadow-2xl backdrop-blur-2xl relative flex flex-col items-center text-center space-y-4 animate-in zoom-in-95 duration-200"
-        role="dialog"
-        aria-modal="true"
-      >
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Tutup modal"
-          className="absolute top-4 right-4 size-8 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white flex items-center justify-center transition"
-        >
-          ✕
-        </button>
-
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-sm rounded-3xl bg-neutral-900/95 border-white/15 p-6 shadow-2xl backdrop-blur-2xl flex flex-col items-center text-center space-y-3">
         <div className="size-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
           <RuneIcon name="glass-chain-link-3-1" type="glass" size={22} />
         </div>
 
-        <div>
-          <h3 className="text-lg font-bold text-white tracking-tight">
+        <DialogHeader className="text-center items-center">
+          <DialogTitle className="text-lg font-bold text-white tracking-tight">
             Bagikan Halaman Ini
-          </h3>
-          <p className="text-xs text-neutral-400 mt-0.5 line-clamp-1">{title}</p>
-        </div>
+          </DialogTitle>
+          <DialogDescription className="text-xs text-neutral-400 mt-0.5 line-clamp-1">
+            {title}
+          </DialogDescription>
+        </DialogHeader>
 
         {/* QR Code Container */}
         <div className="p-3 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-white/20">
@@ -136,7 +131,7 @@ export function PageShareModal({
             title="Bagikan ke WhatsApp"
             className="flex-1 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center justify-center gap-1.5 transition"
           >
-            <RuneIcon name="glass-phone" type="glass" size={14} />
+            <SocialIcon platform="whatsapp" size={14} />
             <span>WhatsApp</span>
           </a>
 
@@ -147,7 +142,7 @@ export function PageShareModal({
             title="Bagikan ke X"
             className="flex-1 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 text-sky-400 text-xs font-medium flex items-center justify-center gap-1.5 transition"
           >
-            <RuneIcon name="glass-message" type="glass" size={14} />
+            <SocialIcon platform="x" size={14} />
             <span>X (Twitter)</span>
           </a>
 
@@ -158,11 +153,11 @@ export function PageShareModal({
             title="Bagikan ke Telegram"
             className="flex-1 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-400 text-xs font-medium flex items-center justify-center gap-1.5 transition"
           >
-            <RuneIcon name="glass-send" type="glass" size={14} />
+            <Send size={14} />
             <span>Telegram</span>
           </a>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -2,20 +2,25 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { RuneIcon } from "runeicons-react";
 import { auth } from "@/lib/auth";
 import { getProfileByUserId, ProfileSettingsForm } from "@/modules/profile";
+import { DashboardShell } from "@/modules/dashboard";
+import { RuneIcon } from "@/components/ui/rune-icon";
 
 export const metadata: Metadata = {
   title: "Pengaturan Profil Akun — OpenLynk",
-  description: "Kelola identitas akun dan media sosial resmi Anda.",
+  description: "Kelola identitas akun, media sosial resmi, dan detail keamanan Anda.",
 };
 
 async function ProfileDashboardContent() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  let session = null;
+  try {
+    session = await auth.api.getSession({
+      headers: await headers(),
+    });
+  } catch {
+    session = null;
+  }
 
   if (!session) {
     redirect("/login");
@@ -24,75 +29,69 @@ async function ProfileDashboardContent() {
   const profile = await getProfileByUserId(session.user.id);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-between relative selection:bg-neutral-800 overflow-x-hidden w-full">
-      {/* Background ambient lighting */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-indigo-500/10 blur-[130px] rounded-full" />
-        <div className="absolute bottom-10 left-1/4 w-96 h-96 bg-cyan-500/5 blur-[140px] rounded-full" />
-      </div>
-
-      {/* Top Navigation */}
-      <header className="border-b border-white/10 bg-neutral-950/70 backdrop-blur-xl sticky top-0 z-50 w-full">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between min-w-0">
-          <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-            <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-              <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-white/20 transition">
-                <RuneIcon name="glass-chain-link-3-1" type="glass" size={20} />
-              </div>
-              <span className="font-semibold text-base sm:text-lg tracking-tight text-white">
-                OpenLynk
-              </span>
-            </Link>
-
-            <nav className="hidden sm:flex items-center gap-1 shrink-0">
-              <Link
-                href="/dashboard"
-                className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition"
-              >
-                Overview
-              </Link>
-              <Link
-                href="/dashboard/pages"
-                className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition"
-              >
-                Halaman Saya
-              </Link>
-              <Link
-                href="/dashboard/profile"
-                className="px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-white/[0.08] border border-white/10 transition"
-              >
-                Profil Akun
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <span className="text-xs text-neutral-400 hidden sm:inline truncate max-w-[150px]">
-              Halo, <strong className="text-neutral-200">{session.user.name}</strong>
-            </span>
-            <Link
-              href="/dashboard"
-              className="text-xs px-3 py-1.5 rounded-xl border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition"
-            >
-              Dashboard
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex-1 w-full relative z-10 min-w-0">
+    <DashboardShell
+      user={{
+        name: session.user.name,
+        email: session.user.email,
+        image: session.user.image,
+      }}
+      username={profile?.username}
+    >
+      <div className="max-w-3xl mx-auto space-y-8">
+        {/* Profile Settings Form */}
         <ProfileSettingsForm
           userId={session.user.id}
           initialProfile={profile}
         />
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-6 text-center text-xs text-neutral-500">
-        OpenLynk — Akun & Profil Kreator
-      </footer>
-    </div>
+        {/* Security & Active Session Details Panel */}
+        <div className="rounded-2xl rune-glass border-white/10 p-5 sm:p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="size-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center shrink-0">
+              <RuneIcon name="glass-shield-check-1" type="glass" size={20} />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">
+                Keamanan &amp; Sesi Login Aktif
+              </h3>
+              <p className="text-xs text-neutral-400">
+                Informasi teknis autentikasi dan status sesi saat ini.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2">
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <span className="text-neutral-500 block text-[11px]">User ID</span>
+              <span className="font-mono text-neutral-300 truncate block mt-0.5" title={session.user.id}>
+                {session.user.id}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <span className="text-neutral-500 block text-[11px]">Status Email</span>
+              <span className={`font-medium block mt-0.5 ${session.user.emailVerified ? "text-emerald-400" : "text-amber-400"}`}>
+                {session.user.emailVerified ? "✓ Terverifikasi" : "Belum Verifikasi"}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <span className="text-neutral-500 block text-[11px]">Session ID</span>
+              <span className="font-mono text-neutral-300 truncate block mt-0.5" title={session.session.id}>
+                {session.session.id}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+              <span className="text-neutral-500 block text-[11px]">IP Address</span>
+              <span className="font-mono text-neutral-300 block mt-0.5">
+                {session.session.ipAddress || "127.0.0.1"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardShell>
   );
 }
 

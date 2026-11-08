@@ -21,7 +21,7 @@ export default function Home() {
             </div>
             <span className="font-semibold text-base sm:text-lg tracking-tight text-white">OpenLynk</span>
             <span className="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.03] text-neutral-400 hidden sm:inline">
-              Runeicon Theme
+              Bento &amp; Bio-Link
             </span>
           </Link>
 
@@ -45,19 +45,19 @@ export default function Home() {
         <div className="rune-pill mb-6 sm:mb-8 text-left max-w-full">
           <span className="size-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
           <span className="text-[11px] sm:text-xs font-medium text-neutral-200 truncate">
-            Adopsi Desain UI & Tema Runeicon Resmi
+            Platform Bio-Link &amp; Bento Grid Interaktif
           </span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight max-w-3xl leading-[1.18] sm:leading-[1.15] text-white">
-          Infrastruktur Modern dengan{" "}
+          Satu Tautan untuk Seluruh{" "}
           <span className="bg-gradient-to-r from-neutral-100 via-neutral-300 to-neutral-500 bg-clip-text text-transparent">
-            Estetika Runeicon
+            Identitas Digital Anda
           </span>
         </h1>
 
         <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-neutral-400 max-w-2xl leading-relaxed">
-          OpenLynk dibangun menggunakan arsitektur <strong className="text-neutral-200">Modular Monolith</strong>, Next.js 16, Better Auth, Drizzle ORM, serta paket ikon <strong className="text-neutral-200">Runeicons</strong> berkategori Glass, Duotone, dan Outline.
+          OpenLynk dirancang dengan arsitektur <strong className="text-neutral-200">Modular Monolith</strong>, Next.js 16, bento canvas interaktif dengan drag &amp; drop taktil, serta tema obsidian modern.
         </p>
 
         {/* Action Buttons (Full width on mobile for thumb accessibility) */}
@@ -74,60 +74,60 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Runeicon 5-Styles Showcase Grid */}
+        {/* Bento Blocks Showcase Grid */}
         <div className="mt-14 sm:mt-20 w-full text-left">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-4 sm:mb-6">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">5 Gaya Visual Ikon Runeicon</h2>
-              <p className="text-xs text-neutral-400">Runeicons menghadirkan fleksibilitas desain untuk berbagai kebutuhan antarmuka</p>
+              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">Ragam Blok Interaktif OpenLynk</h2>
+              <p className="text-xs text-neutral-400">Ekspresikan portofolio dan tautan Anda dengan berbagai varian blok bento modern</p>
             </div>
-            <span className="text-xs text-neutral-500 font-mono hidden sm:inline">runeicons-react</span>
+            <span className="text-xs text-neutral-500 font-mono hidden sm:inline">Bento Canvas</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {/* Style 1: Glass */}
+            {/* Block 1: Bento Card */}
             <div className="rune-glass rune-glass-hover p-4 sm:p-5 rounded-2xl border-white/10 text-center flex flex-col items-center">
               <div className="size-12 sm:size-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-2.5 sm:mb-3 shadow-inner">
                 <RuneIcon name="glass-chain-link-3-1" type="glass" size={28} />
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-white">Glass</h3>
-              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Efek kaca tembus pandang dengan pantulan cahaya halus.</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-white">Bento Card</h3>
+              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Canvas grid adaptif dengan span 1x1 hingga 2x2 bebas ditata.</p>
             </div>
 
-            {/* Style 2: Duotone */}
+            {/* Block 2: Note Card */}
             <div className="rune-glass rune-glass-hover p-4 sm:p-5 rounded-2xl border-white/10 text-center flex flex-col items-center">
               <div className="size-12 sm:size-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-2.5 sm:mb-3">
                 <RuneIcon name="identity-shield-check" type="duotone" size={26} />
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-white">Duotone</h3>
-              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Dua lapisan kedalaman nada warna berpadu harmonis.</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-white">Note &amp; Quote</h3>
+              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Bagikan pesan penting, kutipan inspiratif, atau pengumuman.</p>
             </div>
 
-            {/* Style 3: Outline */}
+            {/* Block 3: Media Embed */}
             <div className="rune-glass rune-glass-hover p-4 sm:p-5 rounded-2xl border-white/10 text-center flex flex-col items-center">
               <div className="size-12 sm:size-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-2.5 sm:mb-3">
                 <RuneIcon name="identity-shield" type="normal" size={26} />
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-white">Outline</h3>
-              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Garis tipis minimalis 24px yang tajam dan presisi.</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-white">Media Embed</h3>
+              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Sematkan video YouTube dan audio interaktif responsif.</p>
             </div>
 
-            {/* Style 4: Fill */}
+            {/* Block 4: GitHub Stats */}
             <div className="rune-glass rune-glass-hover p-4 sm:p-5 rounded-2xl border-white/10 text-center flex flex-col items-center">
               <div className="size-12 sm:size-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-2.5 sm:mb-3">
                 <RuneIcon name="identity-shield-check" type="fill" size={26} />
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-white">Fill</h3>
-              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Ikon solid untuk penekanan visual yang kuat.</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-white">GitHub Stats</h3>
+              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Tampilkan repository, bintang live, dan bahasa kode.</p>
             </div>
 
-            {/* Style 5: Pixelated */}
+            {/* Block 5: Social Row */}
             <div className="col-span-2 sm:col-span-1 lg:col-span-1 rune-glass rune-glass-hover p-4 sm:p-5 rounded-2xl border-white/10 text-center flex flex-col items-center">
               <div className="size-12 sm:size-14 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-2.5 sm:mb-3">
                 <RuneIcon name="identity-shield" type="pixelated" size={26} />
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold text-white">Pixelated</h3>
-              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Sentuhan retro 8-bit bergaya nostalgia klasik.</p>
+              <h3 className="text-xs sm:text-sm font-semibold text-white">Social Row</h3>
+              <p className="text-[10px] sm:text-[11px] text-neutral-400 mt-1 leading-snug">Koneksikan semua profil media sosial dalam satu baris rapi.</p>
             </div>
           </div>
         </div>
@@ -167,8 +167,14 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-6 px-4 text-center text-xs text-neutral-500 relative z-10">
-        <p>OpenLynk &copy; 2026 — Didukung oleh Next.js, Base UI, & Runeicons</p>
+      <footer className="border-t border-white/5 py-6 px-4 text-xs text-neutral-500 relative z-10 flex flex-col sm:flex-row items-center justify-between max-w-5xl mx-auto w-full gap-3">
+        <p>OpenLynk &copy; 2026 — Platform Bio-Link Modern didukung Next.js &amp; Base UI</p>
+        <Link
+          href="/obsidian"
+          className="text-neutral-400 hover:text-white transition underline underline-offset-4 decoration-white/20"
+        >
+          Obsidian Design System
+        </Link>
       </footer>
     </div>
   );

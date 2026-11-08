@@ -57,7 +57,31 @@ async function PageContent({ params }: PublicPageRouteProps) {
     notFound();
   }
 
-  return <PublicPageView data={pageData} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    dateCreated: pageData.createdAt,
+    dateModified: pageData.updatedAt,
+    mainEntity: {
+      "@type": "Person",
+      name: pageData.title || pageData.profile.displayName,
+      alternateName: `@${pageData.profile.username}`,
+      description: pageData.description || pageData.profile.bio,
+      image: pageData.avatarUrl || pageData.profile.avatarUrl,
+      url: `https://openlynk.id/${pageData.slug}`,
+      sameAs: Object.values(pageData.profile.socialLinks ?? {}).filter(Boolean),
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <PublicPageView data={pageData} />
+    </>
+  );
 }
 
 export default function PublicPage(props: PublicPageRouteProps) {

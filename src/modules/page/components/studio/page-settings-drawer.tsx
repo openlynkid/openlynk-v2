@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { RuneIcon } from "runeicons-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Page } from "@/db/schema";
 import { ThemeSelector } from "../theme-selector";
 
@@ -25,6 +28,7 @@ interface PageSettingsDrawerProps {
     isPublished?: boolean;
   }) => void;
   onDeletePage: () => void;
+  onPreviewTheme?: (presetId: string, accentColor: string) => void;
   isSaving: boolean;
 }
 
@@ -45,6 +49,7 @@ interface PageSettingsContentProps {
     isPublished?: boolean;
   }) => void;
   onDeletePage: () => void;
+  onPreviewTheme?: (presetId: string, accentColor: string) => void;
   isSaving: boolean;
 }
 
@@ -54,8 +59,28 @@ function PageSettingsContent({
   onClose,
   onSavePage,
   onDeletePage,
+  onPreviewTheme,
   isSaving,
 }: PageSettingsContentProps) {
+  const initialPresetRef = useRef(page.themeConfig?.themePreset || "obsidian");
+  const initialAccentRef = useRef(page.themeConfig?.accentColor || "#6366f1");
+  const isSavedRef = useRef(false);
+
+  const handleCancel = useCallback(() => {
+    if (!isSavedRef.current) {
+      onPreviewTheme?.(initialPresetRef.current, initialAccentRef.current);
+    }
+    onClose();
+  }, [onClose, onPreviewTheme]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleCancel();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleCancel]);
+
   const [tab, setTab] = useState<"general" | "themes">(initialTab);
   const [title, setTitle] = useState(page.title);
   const [slug, setSlug] = useState(page.slug);
@@ -74,6 +99,7 @@ function PageSettingsContent({
     e.preventDefault();
     if (!title.trim() || !slug.trim()) return;
 
+    isSavedRef.current = true;
     onSavePage({
       title: title.trim(),
       slug: slug.trim().toLowerCase(),
@@ -90,7 +116,12 @@ function PageSettingsContent({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleCancel();
+      }}
+    >
       <div
         className="w-full max-w-md h-full bg-neutral-900/95 border-l border-white/15 p-6 shadow-2xl backdrop-blur-2xl overflow-y-auto space-y-5 animate-in slide-in-from-right duration-300 flex flex-col justify-between"
         role="dialog"
@@ -101,7 +132,7 @@ function PageSettingsContent({
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-2">
               <div className="size-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                <RuneIcon name="glass-sparkle" type="glass" size={16} />
+                <Sparkles size={16} />
               </div>
               <h3 className="text-sm font-bold text-white tracking-tight">
                 Pengaturan Halaman &amp; Tema
@@ -110,38 +141,28 @@ function PageSettingsContent({
 
             <button
               type="button"
-              onClick={onClose}
-              className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white flex items-center justify-center transition"
+              onClick={handleCancel}
+              className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white flex items-center justify-center transition cursor-pointer"
             >
-              ✕
+              <X size={16} />
             </button>
           </div>
 
           {/* Segmented Tabs */}
-          <div className="grid grid-cols-2 p-1 rounded-xl bg-neutral-950/80 border border-white/10">
-            <button
-              type="button"
-              onClick={() => setTab("general")}
-              className={`py-1.5 rounded-lg text-xs font-semibold transition ${
-                tab === "general"
-                  ? "bg-white/15 text-white shadow-sm border border-white/10"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              ⚙️ Pengaturan Umum
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("themes")}
-              className={`py-1.5 rounded-lg text-xs font-semibold transition ${
-                tab === "themes"
-                  ? "bg-white/15 text-white shadow-sm border border-white/10"
-                  : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              🎨 Pilihan Tema
-            </button>
-          </div>
+          <Tabs
+            value={tab}
+            onValueChange={(val) => setTab(val as "general" | "themes")}
+            className="w-full"
+          >
+            <TabsList className="w-full grid grid-cols-2 h-9 p-1 rounded-xl bg-neutral-950/80 border border-white/10">
+              <TabsTrigger value="general" className="text-xs font-semibold rounded-lg">
+                ⚙️ Pengaturan Umum
+              </TabsTrigger>
+              <TabsTrigger value="themes" className="text-xs font-semibold rounded-lg">
+                🎨 Pilihan Tema
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
           {/* Tab 1: General Settings */}
           {tab === "general" && (
@@ -184,12 +205,12 @@ function PageSettingsContent({
                 <label className="block text-xs font-medium text-neutral-300 mb-1">
                   Bio / Deskripsi Khusus Halaman
                 </label>
-                <textarea
+                <Textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value.slice(0, 200))}
                   rows={3}
                   placeholder="Kosongkan jika ingin menggunakan bio profil akun Anda..."
-                  className="w-full rounded-xl border border-white/10 bg-neutral-950/60 p-3 text-xs sm:text-sm text-white placeholder:text-neutral-600 outline-none focus:border-indigo-500/80 transition resize-none"
+                  className="w-full rounded-xl border border-white/10 bg-neutral-950/60 p-3 text-xs sm:text-sm text-white placeholder:text-neutral-600 outline-none focus-visible:border-indigo-500/80 transition resize-none"
                 />
               </div>
 
@@ -207,29 +228,37 @@ function PageSettingsContent({
               </div>
 
               <div className="pt-2 border-t border-white/5 space-y-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-medium text-neutral-200">
+                      Publikasikan Halaman Ini
+                    </span>
+                    <p className="text-[11px] text-neutral-500">
+                      Izinkan pengunjung mengakses halaman ini secara publik
+                    </p>
+                  </div>
+                  <Switch
                     checked={isPublished}
-                    onChange={(e) => setIsPublished(e.target.checked)}
-                    className="size-4 rounded border-white/20 bg-neutral-900 text-indigo-600 focus:ring-0"
+                    onCheckedChange={setIsPublished}
+                    aria-label="Publikasikan halaman"
                   />
-                  <span className="text-xs text-neutral-200">
-                    Publikasikan Halaman Ini
-                  </span>
-                </label>
+                </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                  <div>
+                    <span className="text-xs font-medium text-neutral-200">
+                      Halaman Utama Akun
+                    </span>
+                    <p className="text-[11px] text-neutral-500">
+                      Jadikan halaman default saat pengunjung membuka profil utama Anda
+                    </p>
+                  </div>
+                  <Switch
                     checked={isDefault}
-                    onChange={(e) => setIsDefault(e.target.checked)}
-                    className="size-4 rounded border-white/20 bg-neutral-900 text-indigo-600 focus:ring-0"
+                    onCheckedChange={setIsDefault}
+                    aria-label="Jadikan halaman utama"
                   />
-                  <span className="text-xs text-neutral-200">
-                    Jadikan sebagai Halaman Utama Akun
-                  </span>
-                </label>
+                </div>
               </div>
             </form>
           )}
@@ -242,6 +271,7 @@ function PageSettingsContent({
                 onSelectPreset={(presetId, accent) => {
                   setThemePreset(presetId);
                   setAccentColor(accent);
+                  onPreviewTheme?.(presetId, accent);
                 }}
               />
             </div>
@@ -267,7 +297,7 @@ function PageSettingsContent({
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={handleCancel}
               className="border-white/10 text-neutral-300 text-xs h-10 rounded-xl px-4"
             >
               Batal
@@ -295,6 +325,7 @@ export function PageSettingsDrawer({
   onClose,
   onSavePage,
   onDeletePage,
+  onPreviewTheme,
   isSaving,
 }: PageSettingsDrawerProps) {
   if (!isOpen) return null;
@@ -307,6 +338,7 @@ export function PageSettingsDrawer({
       onClose={onClose}
       onSavePage={onSavePage}
       onDeletePage={onDeletePage}
+      onPreviewTheme={onPreviewTheme}
       isSaving={isSaving}
     />
   );

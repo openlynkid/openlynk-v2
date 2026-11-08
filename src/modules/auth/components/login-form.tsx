@@ -99,7 +99,7 @@ export function LoginForm() {
           <span className="font-bold text-2xl tracking-tight text-white">OpenLynk</span>
         </Link>
         <p className="text-xs text-neutral-400 mt-1">
-          Autentikasi modern & aman bergaya Runeicon UI
+          Autentikasi akun aman &amp; terverifikasi
         </p>
       </div>
 
